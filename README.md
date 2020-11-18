@@ -148,7 +148,7 @@ private:
 int main() {
     Solution::VI A{ 3,5,7,1,3,9,2,0 };
     auto ans = Solution().mergesort(A);
-    copy(ans.begin(), ans.end(), ostream_iterator<int>(cout, " ")), cout << endl;
+    copy(ans.begin(), ans.end(), ostream_iterator<int>(cout, " ")), cout << endl;  // 0 1 2 3 4 5 6 7 8 9
     return 0;
 }
 ```
