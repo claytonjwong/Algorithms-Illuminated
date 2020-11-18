@@ -1,5 +1,6 @@
 # IDE
 .idea
+.vscode
 
 # Prerequisites
 *.d
@@ -33,4 +34,5 @@
 *.exe
 *.out
 *.app
+*.jar
 cmake-build-debug
