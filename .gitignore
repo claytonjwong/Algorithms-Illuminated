@@ -36,3 +36,6 @@
 *.app
 *.jar
 cmake-build-debug
+
+# Dependencies
+node_modules
