@@ -11,7 +11,7 @@
     <img src="ai1large.jpg" />
 </a>
 
-### Merge Sort
+## Merge Sort
 
 <details><summary>Videos</summary>
 <br/>
@@ -163,7 +163,7 @@ int main() {
 </details>
 
 
-### Counting Inversions (via Merge Sort)
+## Counting Inversions (via Merge Sort)
 
 <details><summary>Videos</summary>
 <br/>
@@ -370,7 +370,7 @@ int main() {
 
 </details>
 
-### Quick Sort
+## Quick Sort
 
 <details><summary>Videos</summary>
 <br/>
