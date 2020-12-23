@@ -1,8 +1,15 @@
 # Algorithms Illuminated
 
-* http://www.algorithmsilluminated.org/
+* [algorithmsilluminated.org](https://www.algorithmsilluminated.org/)
 
-## Divide and Conquer
+---
+
+<details><summary><b>Part 1: The Basics</b></summary>
+
+<br/>
+<a href="https://www.amazon.com/dp/0999282905" target="_blank">
+    <img src="ai1large.jpg" />
+</a>
 
 ### Merge Sort
 
@@ -360,5 +367,279 @@ int main() {
     return 0;
 }
 ```
+
+</details>
+
+### Quick Sort
+
+<details><summary>Videos</summary>
+<br/>
+
+* [QuickSort: Overview](https://www.youtube.com/watch?v=ETo1cpLN7kk&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=24) (Section 5.1)
+* [Partitioning Around a Pivot Element](https://www.youtube.com/watch?v=LYzdRN5iFdA&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=25) (Section 5.2)
+* [Choosing a Good Pivot](https://www.youtube.com/watch?v=kqO46FOUTbI&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=26) (Sections 5.3 and 5.4)
+* [QuickSort Analysis (Part 1)](https://www.youtube.com/watch?v=sToWtKSYlMw&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=27) (Section 5.5, part 1)
+* [QuickSort Analysis (Part 2)](https://www.youtube.com/watch?v=4t_Y-aGLkok&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=28) (Section 5.5, part 2)
+* [QuickSort Analysis (Part 3)](https://www.youtube.com/watch?v=IBTvneWhFsA&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=29) (Section 5.5, part 3)
+* [Sorting Requires Omega(n log n) Comparisons](https://www.youtube.com/watch?v=aFveIyII5D4&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=30) (Section 5.6)
+* [Proofs by Induction and the Correctness of QuickSort](https://www.youtube.com/watch?v=Colb_4jAy8A&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=36) (Appendix A)
+* [Quick Review of Discrete Probability](https://www.youtube.com/watch?v=uLeIMwMHX5U&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=37) (Appendix B)
+
+</details>
+
+<details><summary>Implementations</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+typealias PivotFunc = (A: MutableList<Int>, L: Int, R: Int) -> (Int)
+var pivotLeft: PivotFunc = { _: MutableList<Int>, L: Int, _: Int -> L }
+var pivotRight: PivotFunc = { _: MutableList<Int>, _: Int, R: Int -> R }
+fun _pivotMedian(A: MutableList<Int>, L: Int, R: Int): Int {
+    var M = L + (R - L) / 2
+    var cand = intArrayOf(A[L], A[M], A[R])
+    cand.sort()
+    var target = cand[1]
+    if (target == A[L]) return L
+    if (target == A[M]) return M
+    if (target == A[R]) return R
+    return -1
+}
+var pivotMedian: PivotFunc = { A: MutableList<Int>, L: Int, R: Int -> _pivotMedian(A, L, R) }
+
+fun partition(A: MutableList<Int>, L: Int, R: Int, choosePivot: (A: MutableList<Int>, L: Int, R: Int) -> (Int)): Int {
+    var i = L + 1
+    var j = L + 1
+    var k = choosePivot(A, L, R)
+    A[k] = A[L].also { A[L] = A[k] }
+    while (j <= R) {
+        if (A[j] < A[L]) {
+            A[i] = A[j].also { A[j] = A[i] }
+            ++i
+        }
+        ++j
+    }
+    A[L] = A[i - 1].also { A[i - 1] = A[L] }
+    return i - 1
+}
+
+fun quicksort(A: MutableList<Int>, L: Int, R: Int, choosePivot: (A: MutableList<Int>, L: Int, R: Int) -> (Int)): Int {
+    if (R <= L)
+        return 0
+    var k = partition(A, L, R, choosePivot)
+    return (R - L) + quicksort(A, L, k - 1, choosePivot) + quicksort(A, k + 1, R, choosePivot)
+}
+
+fun run(filename: String, choosePivot: (A: MutableList<Int>, L: Int, R: Int) -> (Int)): Int {
+    var A = mutableListOf<Int>()
+    File(filename).forEachLine { A.add(it.toInt()) }
+    return quicksort(A, 0, A.size - 1, choosePivot)
+}
+
+fun main() {
+    var filename = "problem5.6.txt"
+    println("  left: ${run(filename, pivotLeft)}")    //   left: 162085
+    println(" right: ${run(filename, pivotRight)}")   //  right: 164123
+    println("median: ${run(filename, pivotMedian)}")  // median: 138382
+}
+```
+
+*Javascript*
+```javascript
+let pivotLeft = (A, L, R) => L;
+let pivotRight = (A, L, R) => R;
+let pivotMedian = (A, L, R) => {
+    let M = L + Math.floor((R - L) / 2);
+    let cand = [A[L], A[M], A[R]].sort((a, b) => a - b),
+        target = cand[1];
+    if (target == A[L]) return L;
+    if (target == A[M]) return M;
+    if (target == A[R]) return R;
+};
+
+let partition = (A, L, R, choosePivot) => {
+    let i = L + 1,
+        j = L + 1,
+        k = choosePivot(A, L, R);
+    [A[L], A[k]] = [A[k], A[L]];          // swap pivot A[k] with first element of subarray A[L]
+    while (j <= R) {
+        if (A[j] < A[L]) {                // maintain loop invariant A[i] < pivot < A[j]
+            [A[i], A[j]] = [A[j], A[i]];
+            ++i;
+        }
+        ++j;
+    }
+    [A[L], A[i - 1]] = [A[i - 1], A[L]];  // swap pivot A[L] with last value less-than pivot A[i - 1]
+    return i - 1;
+};
+
+let quicksort = (A, L, R, choosePivot) => {
+    if (R <= L)
+        return 0;
+    let k = partition(A, L, R, choosePivot);
+    return (R - L) + quicksort(A, L, k - 1, choosePivot)
+                   + quicksort(A, k + 1, R, choosePivot);
+};
+
+let run = (filename, choosePivot) => {
+    let A = [];
+    let LineByLine = require("n-readlines");
+    let input = new LineByLine(filename);
+    for (let line; line = input.next(); A.push(Number(line)));
+    return quicksort(A, 0, A.length - 1, choosePivot);
+}
+
+let filename = 'problem5.6.txt';
+console.log(`  left: ${run(filename, pivotLeft)}`);    //   left: 162085
+console.log(` right: ${run(filename, pivotRight)}`);   //  right: 164123
+console.log(`median: ${run(filename, pivotMedian)}`);  // median: 138382
+```
+
+*Python3*
+```python
+def pivotLeft(A, L, R): return L
+def pivotRight(A, L, R): return R
+def pivotMedian(A, L, R):
+    M = L + (R - L) // 2
+    cand = sorted([A[L], A[M], A[R]])
+    target = cand[1]
+    if target == A[L]: return L
+    if target == A[M]: return M
+    if target == A[R]: return R
+
+def partition(A, L, R, choosePivot):
+    i = L + 1
+    j = L + 1
+    k = choosePivot(A, L, R)
+    A[L], A[k] = A[k], A[L]          # swap pivot A[k] with first element of subarray A[L]
+    while j <= R:
+        if A[j] < A[L]:              # maintain loop invariant A[i] < pivot < A[j]
+            A[i], A[j] = A[j], A[i]
+            i += 1
+        j += 1
+    A[L], A[i - 1] = A[i - 1], A[L]  # swap pivot A[L] with last value less-than pivot A[i - 1]
+    return i - 1
+
+def quicksort(A, L, R, choosePivot):
+    if R <= L:
+        return 0
+    k = partition(A, L, R, choosePivot)
+    return (R - L) + quicksort(A, L, k - 1, choosePivot) + quicksort(A, k + 1, R, choosePivot)
+
+def run(filename, choosePivot):
+    A = []
+    with open(filename) as fin:
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            A.append(int(line))
+
+    return quicksort(A, 0, len(A) - 1, choosePivot)
+
+filename = 'problem5.6.txt'
+print(f'  left: {run(filename, pivotLeft)}')    #   left: 162085
+print(f' right: {run(filename, pivotRight)}')   #  right: 164123
+print(f'median: {run(filename, pivotMedian)}')  # median: 138382
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+using namespace std;
+using VI = vector<int>;
+using fun = function<int(VI&, int, int)>;
+
+fun pivotLeft = [](VI& A, int L, int R) { return L; };
+fun pivotRight = [](VI& A, int L, int R) { return R; };
+fun pivotMedian = [](VI& A, int L, int R) {
+    auto M = L + (R - L) / 2;
+    VI cand{ A[L], A[M], A[R] };
+    sort(cand.begin(), cand.end());
+    auto target = cand[1];
+    if (target == A[L]) return L;
+    if (target == A[M]) return M;
+    if (target == A[R]) return R;
+};
+
+int partition(VI& A, int L, int R, fun choosePivot) {
+    auto i = L + 1,
+         j = L + 1,
+         k = choosePivot(A, L, R);
+    swap(A[L], A[k]);           // swap pivot A[k] with first element of the subarray A[L]
+    while (j <= R) {
+        if (A[j] < A[L]) {            // maintain loop invariant A[i] < pivot < A[j]
+            swap(A[i], A[j]);
+            ++i;
+        }
+        ++j;
+    }
+    swap(A[L], A[i - 1]);  // swap pivot A[L] with last value less-than pivot A[i - 1]
+    return i - 1;
+}
+
+int quicksort(VI& A, int L, int R, fun choosePivot) {
+    if (R <= L)
+        return 0;
+    auto k = partition(A, L, R, choosePivot);
+    return (R - L) + quicksort(A, L, k - 1, choosePivot)
+                   + quicksort(A, k + 1, R, choosePivot);
+}
+
+int run(string& filename, fun choosePivot) {
+    VI A;
+    fstream fin{ filename };
+    for (string line; fin >> line; A.push_back(stoi(line)));
+    int N = A.size();
+    return quicksort(A, 0, N - 1, choosePivot);
+}
+
+int main() {
+    string filename{ "problem5.6.txt" };
+    cout << "  left: " << run(filename, pivotLeft)   << endl   //   left: 162085
+         << " right: " << run(filename, pivotRight)  << endl   //  right: 164123
+         << "median: " << run(filename, pivotMedian) << endl;  // median: 138382
+    return 0;
+}
+```
+</details>
+
+</details>
+
+---
+
+<details><summary><b>Part 2: Graph Algorithms and Data Structures</b></summary>
+
+<br/>
+<a href="https://www.amazon.com/dp/0999282921" target="_blank">
+    <img src="ai2large.jpg" />
+</a>
+
+</details>
+
+---
+
+<details><summary><b>Part 3: Greedy Algorithms and Dynamic Programming</b></summary>
+
+<br/>
+<a href="https://www.amazon.com/dp/0999282948" target="_blank">
+    <img src="ai3large.jpg" />
+</a>
+
+</details>
+
+---
+
+<details><summary><b>Part 4: Algorithms for NP-Hard Problems</b></summary>
+
+<br/>
+<a href="https://www.amazon.com/dp/0999282964" target="_blank">
+    <img src="ai4large.jpg" />
+</a>
 
 </details>
