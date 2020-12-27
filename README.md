@@ -26,7 +26,7 @@
 <br/>
 
 *Kotlin*
-```kotlin
+```java
 fun sort(A: IntArray): IntArray {
     fun merge(A: IntArray, B: IntArray): IntArray {
         var C = mutableListOf<Int>()
@@ -163,7 +163,7 @@ int main() {
 </details>
 
 
-## Counting Inversions (via Merge Sort)
+## Counting Inversions
 
 <details><summary>Videos</summary>
 <br/>
@@ -177,7 +177,7 @@ int main() {
 <br/>
 
 *Kotlin*
-```kotlin
+```java
 import java.io.File
 
 fun sort(A: IntArray): Pair<IntArray, Long> {
@@ -391,7 +391,7 @@ int main() {
 <br/>
 
 *Kotlin*
-```kotlin
+```java
 import java.io.File
 
 typealias PivotFunc = (A: MutableList<Int>, L: Int, R: Int) -> (Int)
@@ -413,15 +413,15 @@ fun partition(A: MutableList<Int>, L: Int, R: Int, choosePivot: (A: MutableList<
     var i = L + 1
     var j = L + 1
     var k = choosePivot(A, L, R)
-    A[k] = A[L].also { A[L] = A[k] }
+    A[k] = A[L].also { A[L] = A[k] }          // swap pivot A[k] with first element of subarray A[L]
     while (j <= R) {
-        if (A[j] < A[L]) {
+        if (A[j] < A[L]) {                    // maintain loop invariant A[i] < pivot < A[j]
             A[i] = A[j].also { A[j] = A[i] }
             ++i
         }
         ++j
     }
-    A[L] = A[i - 1].also { A[i - 1] = A[L] }
+    A[L] = A[i - 1].also { A[i - 1] = A[L] }  // swap pivot A[L] with last value less-than pivot A[i - 1]
     return i - 1
 }
 
@@ -571,15 +571,15 @@ int partition(VI& A, int L, int R, fun choosePivot) {
     auto i = L + 1,
          j = L + 1,
          k = choosePivot(A, L, R);
-    swap(A[L], A[k]);           // swap pivot A[k] with first element of the subarray A[L]
+    swap(A[L], A[k]);          // swap pivot A[k] with first element of the subarray A[L]
     while (j <= R) {
-        if (A[j] < A[L]) {            // maintain loop invariant A[i] < pivot < A[j]
+        if (A[j] < A[L]) {     // maintain loop invariant A[i] < pivot < A[j]
             swap(A[i], A[j]);
             ++i;
         }
         ++j;
     }
-    swap(A[L], A[i - 1]);  // swap pivot A[L] with last value less-than pivot A[i - 1]
+    swap(A[L], A[i - 1]);      // swap pivot A[L] with last value less-than pivot A[i - 1]
     return i - 1;
 }
 
@@ -607,6 +607,211 @@ int main() {
     return 0;
 }
 ```
+</details>
+
+## Randomized Linear-Time Selection
+
+<details><summary>Videos</summary>
+<br/>
+
+* [Randomized Linear-Time Selection](https://www.youtube.com/watch?v=nFw6x7DoYbs&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=31) (Section 6.1)
+* [Randomized Linear-Time Selection (Analysis)](https://www.youtube.com/watch?v=rX2u2CnpveQ&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=32) (Section 6.2)
+
+</details>
+
+<details><summary>Implementations</summary>
+<br/>
+
+*Kotlin*
+```java
+import java.io.File
+import kotlin.random.Random
+
+fun partition(A: MutableList<Int>, L: Int, R: Int): Int {
+    var i = L + 1
+    var j = L + 1
+    var k = Random.nextInt(L, R + 1)          // +1 for L..R inclusive
+    A[L] = A[k].also { A[k] = A[L] }          // swap pivot A[k] with first element of subarray A[L]
+    while (j <= R) {
+        if (A[j] < A[L]) {                    // maintain loop invariant A[i] < pivot < A[j]
+            A[i] = A[j].also { A[j] = A[i] }
+            ++i
+        }
+        ++j
+    }
+    A[L] = A[i - 1].also { A[i - 1] = A[L] }  // swap pivot A[L] with last value less-than pivot A[i - 1]
+    return i - 1
+}
+
+fun rselect(A: MutableList<Int>, i: Int, L_: Int, R_: Int): Int {
+    var L = L_
+    var R = R_
+    var k = partition(A, L, R)
+    if (i == k)
+        return A[k]  // 🎯 lucky guess
+    if (i < k)
+        R = k - 1
+    else
+        L = k + 1
+    return rselect(A, i, L, R)
+}
+
+fun run(filename: String, i: Int): Int {
+    var A = mutableListOf<Int>()
+    File(filename).forEachLine { A.add(it.toInt()) }
+    var N = A.size
+    return rselect(A, i - 1, 0 , N - 1)  // -1 for 0-based indexing
+}
+
+fun main() {
+    println("problem6.5test1.txt: " + run("problem6.5test1.txt", 5))   // problem6.5test1.txt: 5469
+    println("problem6.5test2.txt: " + run("problem6.5test2.txt", 50))  // problem6.5test2.txt: 4715
+}
+```
+
+*Javascript*
+```javascript
+let random = (L, R) => Math.floor(Math.random() * (R + 1 - L) + L);  // +1 for L..R inclusive
+
+let partition = (A, L, R) => {
+    let i = L + 1,
+        j = L + 1,
+        k = random(L, R);
+    [A[L], A[k]] = [A[k], A[L]];          // swap pivot A[k] with first element of subarray A[L]
+    while (j <= R) {
+        if (A[j] < A[L]) {                // maintain loop invariant A[i] < pivot < A[j]
+            [A[i], A[j]] = [A[j], A[i]];
+            ++i;
+        }
+        ++j;
+    }
+    [A[L], A[i - 1]] = [A[i - 1], A[L]];  // swap pivot A[L] with last value less-than pivot A[i - 1]
+    return i - 1;
+};
+
+let rselect = (A, i, L, R) => {
+    let k = partition(A, L, R);
+    if (i == k)
+        return A[k];  // 🎯 lucky guess
+    if (i < k)
+        R = k - 1;
+    else
+        L = k + 1;
+    return rselect(A, i, L, R);
+}
+
+let run = (filename, i) => {
+    let A = [];
+    let LineByLine = require("n-readlines");
+    let input = new LineByLine(filename);
+    for (let line; line = input.next(); A.push(Number(line)));
+    let N = A.length;
+    return rselect(A, i - 1, 0, N - 1);  // -1 for 0-based indexing
+};
+
+console.log(`problem6.5test1.txt: ${run('problem6.5test1.txt', 5)}`);   // problem6.5test1.txt: 5469
+console.log(`problem6.5test2.txt: ${run('problem6.5test2.txt', 50)}`);  // problem6.5test2.txt: 4715
+```
+
+*Python3*
+```python
+from random import uniform
+from math import floor
+
+def partition(A, L, R):
+    i = L + 1
+    j = L + 1
+    k = floor(uniform(L, R))
+    A[L], A[k] = A[k], A[L]          # swap pivot A[k] with first element of subarray A[L]
+    while j <= R:
+        if A[j] < A[L]:              # maintain loop invariant A[i] < pivot < A[j]
+            A[i], A[j] = A[j], A[i]
+            i += 1
+        j += 1
+    A[L], A[i - 1] = A[i - 1], A[L]  # swap pivot A[L] with last value less-than pivot A[i - 1]
+    return i - 1
+
+def rselect(A, i, L, R):
+    k = partition(A, L, R)
+    if i == k:
+        return A[k]  # 🎯 lucky guess
+    if i < k:
+        R = k - 1
+    else:
+        L = k + 1
+    return rselect(A, i, L, R)
+
+def run(filename, i):
+    A = []
+    with open(filename) as fin:
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            A.append(int(line))
+    N = len(A)
+    return rselect(A, i - 1, 0, N - 1)  # -1 for 0-based indexing
+
+print('problem6.5test1.txt:', run('problem6.5test1.txt', 5))   # problem6.5test1.txt: 5469
+print('problem6.5test2.txt:', run('problem6.5test2.txt', 50))  # problem6.5test2.txt: 4715
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <random>
+
+using namespace std;
+using VI = vector<int>;
+
+int random(int L, int R) {
+    random_device rd;
+    mt19937 gen{ rd() };
+    uniform_int_distribution dist(L, R);
+    return dist(gen);
+}
+
+int partition(VI& A, int L, int R) {
+    auto i = L + 1,
+         j = L + 1,
+         k = random(L, R);
+    swap(A[L], A[k]);            // swap pivot A[k] with first element of the subarray A[L]
+    while (j <= R) {
+        if (A[j] < A[L])         // maintain loop invariant A[i] < pivot < A[j]
+            swap(A[i++], A[j]);
+        ++j;
+    }
+    swap(A[L], A[i - 1]);       // swap pivot A[L] with last value less-than pivot A[i - 1]
+    return i - 1;
+}
+
+int rselect(VI& A, int i, int L, int R) {
+    auto k = partition(A, L, R);
+    if (i == k)
+        return A[k];  // 🎯 lucky guess
+    if (i < k)
+        R = k - 1;
+    else
+        L = k + 1;
+    return rselect(A, i, L, R);
+}
+
+int run(string filename, int i, VI A = {}) {
+    fstream fin{ filename };
+    for (string line; fin >> line; A.push_back(stoi(line)));
+    int N = A.size();
+    return rselect(A, i - 1, 0, N - 1);  // -1 for 0-based indexing
+}
+
+int main() {
+    cout << "problem6.5test1.txt: " << run("problem6.5test1.txt", 5)  << endl;  // problem6.5test1.txt: 5469
+    cout << "problem6.5test2.txt: " << run("problem6.5test2.txt", 50) << endl;  // problem6.5test2.txt: 4715
+    return 0;
+}
+```
+
 </details>
 
 </details>
