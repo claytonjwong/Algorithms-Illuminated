@@ -830,6 +830,392 @@ int main() {
     <img src="ai2large.jpg" />
 </a>
 
+## Topological Sort
+
+<details><summary>Videos</summary>
+<br/>
+
+* [Graphs: The Basics (from 2:06 to 6:39)](https://www.youtube.com/watch?v=4Ih3UhVuEtw&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=1) (Sections 7.1 and 7.2)
+* [Graph Representations](https://www.youtube.com/watch?v=b-Mfu8dPv9U&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=2) (Sections 7.3 and 7.4)
+* [Graph Search Overview](https://www.youtube.com/watch?v=SW6jwg7WS48&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=3) (Section 8.1)
+* [Breadth-First Search](https://www.youtube.com/watch?v=73qCvXsYkfk&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=4) (Section 8.2, Part 1)
+* [Depth-First Search](https://www.youtube.com/watch?v=73qCvXsYkfk&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=4) (Section 8.4)
+* [Topological Sort](https://www.youtube.com/watch?v=ozso3xxkVGU&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=8) (Section 8.5)
+
+</details>
+
+<details><summary>Implementations</summary>
+<br/>
+
+*Kotlin*
+```java
+import java.util.Queue
+import java.util.LinkedList
+
+class Solution(val adj: MutableMap<Char, List<Char>>) {
+
+    var N: Int
+    var color: Int
+    var m = mutableMapOf<Char, Int>()
+    var seen = mutableSetOf<Char>()
+
+    init {
+        N = adj.size
+        color = 0
+    }
+
+    fun init(start: Int) {
+        color = start
+        m.clear()
+        seen.clear()
+    }
+
+    fun topoSortBFS(): String {
+        init(1)  // 👉 color forward from 1..N
+        bfs()
+        return toString()
+    }
+
+    fun topoSortDFS(): String {
+        init(N)  // 👈 color reverse from N..1 (as the recursive stack unwinds)
+        adj.forEach{ (u, _) -> dfs(u) }
+        return toString()
+    }
+
+    fun bfs() {
+        var degree = mutableMapOf<Char, Int>()
+        adj.forEach{ (_, neighbors) ->
+            neighbors.forEach{ v ->
+                degree[v] = 1 + degree.getOrDefault(v, 0)
+            }
+        }
+        var q: Queue<Char> = LinkedList(adj.map{ (u, _) -> u }.filter{ !degree.contains(it) })
+        while (0 < q.size) {
+            var u = q.poll()
+            m[u] = color++
+            adj[u]!!.forEach{ v ->
+                degree[v] = degree[v]!!.minus(1)
+                if (degree[v] == 0 && !seen.contains(v)) {
+                    q.add(v); seen.add(v)
+                }
+            }
+        }
+    }
+
+    fun dfs(u: Char) {
+        if (seen.contains(u))
+            return
+        seen.add(u)
+        adj[u]!!.forEach{ v ->
+            dfs(v)
+        }
+        m[u] = color--
+    }
+
+    override fun toString(): String {
+        var s = mutableListOf<String>()
+        adj.forEach{ (u, _) ->
+            s.add("$u: ${m[u]}")
+        }
+        return s.joinToString("\n")
+    }
+}
+
+fun main() {
+    var adj = mutableMapOf<Char, List<Char>>(
+        's' to listOf<Char>('v', 'w'),
+        'v' to listOf<Char>('t'),
+        'w' to listOf<Char>('t'),
+        't' to listOf<Char>()
+    )
+    var solution = Solution(adj)
+    println("BFS:\n${solution.topoSortBFS()}\n\nDFS:\n${solution.topoSortDFS()}")
+
+//    BFS:
+//    s: 1
+//    v: 2
+//    w: 3
+//    t: 4
+
+//    DFS:
+//    s: 1
+//    v: 3
+//    w: 2
+//    t: 4
+
+}
+```
+
+*Javascript*
+```javascript
+class Solution {
+    constructor(adj) {
+        this.adj = adj;
+        this.N = this.adj.size;
+    }
+    init(start) {
+        this.color = start;
+        this.seen = new Set();
+        this.m = new Map();
+    }
+    topo_sort_bfs() {
+        this.init(1);       // 👉 color forward from 1..N
+        this.bfs();
+        return this.to_string();
+    }
+    topo_sort_dfs() {
+        this.init(this.N);  // 👈 color reverse from N..1 (as the recursive stack unwinds)
+        for (let [u, _] of [...this.adj])
+            this.dfs(u);
+        return this.to_string();
+    }
+    bfs() {
+        let degree = new Map();
+        for (let [u, _] of [...this.adj])
+            for (let v of this.adj.get(u))
+                degree.set(v, 1 + (degree.get(v) || 0));
+        let q = [...this.adj].map(([u, _]) => u).filter(u => !degree.has(u));
+        let seen = new Set(q);
+        while (q.length) {
+            let u = q.shift();
+            this.m.set(u, this.color++);
+            for (let v of this.adj.get(u))
+                if (!seen.has(v))
+                    q.push(v), seen.add(v);
+        }
+    }
+    dfs(u) {
+        if (this.seen.has(u))
+            return;
+        this.seen.add(u);
+        for (let v of this.adj.get(u))
+            if (!this.seen.has(v))
+                this.dfs(v);
+        this.m.set(u, this.color--);
+    }
+    to_string() {
+        let s = [];
+        for (let [u, color] of [...this.m])
+            s.push(`${u}: ${color}`);
+        return s.join('\n');
+    }
+}
+
+let adj = new Map();
+adj.set('s', ['v', 'w']);
+adj.set('v', ['t']);
+adj.set('w', ['t']);
+adj.set('t', []);
+let solution = new Solution(adj);
+console.log(`BFS:\n${solution.topo_sort_bfs()}\n\nDFS:\n${solution.topo_sort_dfs()}`);
+
+//    BFS:
+//    s: 1
+//    v: 2
+//    w: 3
+//    t: 4
+
+//    DFS:
+//    t: 4
+//    v: 3
+//    w: 2
+//    s: 1
+```
+
+*Python3*
+```python
+from collections import deque
+
+class Solution:
+    def __init__(self, adj):
+        self.adj = adj
+        self.N = len(adj)
+        self.seen = set()
+        self.m = {}
+
+    def init(self, start):
+        self.color = start
+        self.seen.clear()
+        self.m.clear()
+
+    def topo_sort_bfs(self):
+        self.init(1)         # 👉 color forward from 1..N
+        self.bfs()
+        return self.to_string()
+
+    def topo_sort_dfs(self):
+        self.init(self.N)  # 👈 color reverse from N..1 (as the recursive stack unwinds)
+        for u, _ in self.adj.items():
+            self.dfs(u)
+        return self.to_string()
+
+    def bfs(self):
+        degree = {}
+        for _, neighbors in self.adj.items():
+            for v in neighbors:
+                degree[v] = 1 + (degree[v] if v in degree else 0)
+        q = deque(u for u, _ in self.adj.items() if u not in degree)
+        self.seen.update(*q)
+        while q:
+            u = q.popleft()
+            self.m[u] = self.color; self.color += 1
+            for v in adj[u]:
+                degree[v] -= 1
+                if not degree[v] and v not in self.seen:
+                    q.append(v); self.seen.add(v)
+
+    def dfs(self, u):
+        if u in self.seen:
+            return
+        self.seen.add(u)
+        for v in adj[u]:
+            self.dfs(v)
+        self.m[u] = self.color; self.color -= 1
+
+    def to_string(self):
+        s = []
+        for u, color in self.m.items():
+            s.append(f'{u}: {color}')
+        return '\n'.join(s)
+
+#
+# graph from Quiz 8.3 on page 45 of Algorithms Illuminated: Part 2
+#
+adj = {
+    's': ['v', 'w'],
+    'v': ['t'],
+    'w': ['t'],
+    't': []
+}
+solution = Solution(adj)
+
+print(f'BFS:\n{solution.topo_sort_bfs()}\n\nDFS:\n{solution.topo_sort_dfs()}')
+
+#    BFS:
+#    s: 1
+#    v: 2
+#    w: 3
+#    t: 4
+
+#    DFS:
+#    t: 4
+#    v: 3
+#    w: 2
+#    s: 1
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+
+using namespace std;
+
+using VI = vector<int>;
+using AdjList = unordered_map<char, VI>;
+using Set = unordered_set<char>;
+using Map = unordered_map<char, int>;
+using Queue = queue<char>;
+using fun = function<void(char)>;
+
+class Solution {
+private:
+    AdjList adj;
+    const int N;
+    Map m;
+    Set seen;
+    int color;
+public:
+    Solution(AdjList& adj) : adj{ adj }, N{ int(adj.size()) } {
+    }
+    void init(int start) {
+        m.clear();
+        seen.clear();
+        color = start;
+    }
+    string topo_sort_bfs() {
+        init(1);  // 👉 color forward from 1..N
+        bfs();
+        return to_string();
+    }
+    string topo_sort_dfs() {
+        init(N);  // 👈 color reverse from N..1 (as the recursive stack unwinds)
+        for (auto [u, _]: adj)
+            dfs(u);
+        return to_string();
+    }
+    void bfs() {
+        Map degree;
+        for (auto [_, neighbors]: adj)
+            for (auto v: neighbors)
+                ++degree[v];
+        Queue q;
+        for (auto [u, _]: adj)
+            if (!degree[u] && seen.insert(u).second)
+                q.push(u);
+        while (q.size()) {
+            auto u = q.front(); q.pop();
+            m[u] = color++;
+            for (auto v: adj[u])
+                if (!--degree[v] && seen.insert(v).second)
+                    q.push(v);
+        }
+    }
+    void dfs(char start) {
+        fun go = [&](auto u) {
+            if (!seen.insert(u).second)
+                return;
+            for (auto v: adj[u])
+                go(v);
+            m[u] = color--;
+        };
+        go(start);
+    }
+    string to_string() {
+        ostringstream os;
+        for (auto [u, color]: m)
+            os << u << ": " << color << endl;
+        return os.str();
+    }
+};
+
+int main() {
+    //
+    // graph from Quiz 8.3 on page 45 of Algorithms Illuminated: Part 2
+    //
+    AdjList adj{
+        { 's', { 'v', 'w' } },
+        { 'v', { 't' } },
+        { 'w', { 't' } },
+        { 't', {} }
+    };
+    Solution solution{ adj };
+
+    cout << "BFS:" << endl << solution.topo_sort_bfs() << endl
+         << "DFS:" << endl << solution.topo_sort_dfs() << endl;
+
+//    BFS:
+//    t: 4
+//    w: 3
+//    v: 2
+//    s: 1
+//
+//    DFS:
+//    s: 1
+//    w: 2
+//    v: 3
+//    t: 4
+
+    return 0;
+}
+```
+
+</details>
+
 </details>
 
 ---
