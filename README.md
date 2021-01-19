@@ -20,7 +20,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 
 ## Merge Sort
 
-<details><summary>Videos</summary>
+<details><summary>Lectures</summary>
 <br/>
 
 * [MergeSort: Motivation and Example](https://www.youtube.com/watch?v=kiyRJ7GVWro&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=4) (Section 1.4, part 1)
@@ -172,7 +172,7 @@ int main() {
 
 ## Counting Inversions
 
-<details><summary>Videos</summary>
+<details><summary>Lectures</summary>
 <br/>
 
 * [The Divide-and-Conquer Paradigm](https://www.youtube.com/watch?v=7_AJfusC6UQ&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=13) (Section 3.1; part 1 of Section 3.2)
@@ -379,7 +379,7 @@ int main() {
 
 ## Quick Sort
 
-<details><summary>Videos</summary>
+<details><summary>Lectures</summary>
 <br/>
 
 * [QuickSort: Overview](https://www.youtube.com/watch?v=ETo1cpLN7kk&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=24) (Section 5.1)
@@ -618,7 +618,7 @@ int main() {
 
 ## Randomized Linear-Time Selection
 
-<details><summary>Videos</summary>
+<details><summary>Lectures</summary>
 <br/>
 
 * [Randomized Linear-Time Selection](https://www.youtube.com/watch?v=nFw6x7DoYbs&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=31) (Section 6.1)
@@ -834,7 +834,7 @@ int main() {
 
 ## Topological Sort
 
-<details><summary>Videos</summary>
+<details><summary>Lectures</summary>
 <br/>
 
 * [Graphs: The Basics (from 2:06 to 6:39)](https://www.youtube.com/watch?v=4Ih3UhVuEtw&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=1) (Sections 7.1 and 7.2)
