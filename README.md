@@ -18,9 +18,11 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
     <img src="ai1large.jpg" />
 </a>
 
+---
+
 ## Merge Sort
 
-<details><summary>Lectures</summary>
+<details><summary>📚 Lectures</summary>
 <br/>
 
 * [MergeSort: Motivation and Example](https://www.youtube.com/watch?v=kiyRJ7GVWro&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=4) (Section 1.4, part 1)
@@ -29,7 +31,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 
 </details>
 
-<details><summary>Implementations</summary>
+<details><summary>🎯 Solutions</summary>
 <br/>
 
 *Kotlin*
@@ -169,10 +171,11 @@ int main() {
 
 </details>
 
+---
 
 ## Counting Inversions
 
-<details><summary>Lectures</summary>
+<details><summary>📚 Lectures</summary>
 <br/>
 
 * [The Divide-and-Conquer Paradigm](https://www.youtube.com/watch?v=7_AJfusC6UQ&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=13) (Section 3.1; part 1 of Section 3.2)
@@ -180,7 +183,7 @@ int main() {
 
 </details>
 
-<details><summary>Implementations</summary>
+<details><summary>🎯 Solutions</summary>
 <br/>
 
 *Kotlin*
@@ -377,9 +380,11 @@ int main() {
 
 </details>
 
+---
+
 ## Quick Sort
 
-<details><summary>Lectures</summary>
+<details><summary>📚 Lectures</summary>
 <br/>
 
 * [QuickSort: Overview](https://www.youtube.com/watch?v=ETo1cpLN7kk&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=24) (Section 5.1)
@@ -394,7 +399,7 @@ int main() {
 
 </details>
 
-<details><summary>Implementations</summary>
+<details><summary>🎯 Solutions</summary>
 <br/>
 
 *Kotlin*
@@ -616,9 +621,11 @@ int main() {
 ```
 </details>
 
+---
+
 ## Randomized Linear-Time Selection
 
-<details><summary>Lectures</summary>
+<details><summary>📚 Lectures</summary>
 <br/>
 
 * [Randomized Linear-Time Selection](https://www.youtube.com/watch?v=nFw6x7DoYbs&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=31) (Section 6.1)
@@ -626,7 +633,7 @@ int main() {
 
 </details>
 
-<details><summary>Implementations</summary>
+<details><summary>🎯 Solutions</summary>
 <br/>
 
 *Kotlin*
@@ -832,9 +839,11 @@ int main() {
     <img src="ai2large.jpg" />
 </a>
 
+---
+
 ## Topological Sort
 
-<details><summary>Lectures</summary>
+<details><summary>📚 Lectures</summary>
 <br/>
 
 * [Graphs: The Basics (from 2:06 to 6:39)](https://www.youtube.com/watch?v=4Ih3UhVuEtw&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=1) (Sections 7.1 and 7.2)
@@ -846,7 +855,7 @@ int main() {
 
 </details>
 
-<details><summary>Implementations</summary>
+<details><summary>🎯 Solutions</summary>
 <br/>
 
 *Kotlin*
@@ -1222,9 +1231,11 @@ int main() {
 
 </details>
 
+---
+
 ## Kosaraju Strongly Connected Components
 
-<details><summary>Lectures</summary>
+<details><summary>📚 Lectures</summary>
 <br/>
 
 * [Computing Strongly Connected Components (Part 1) (Section 8.6, Part 1)](https://www.youtube.com/watch?v=O98hLTYVN3c&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=9)
@@ -1233,7 +1244,7 @@ int main() {
 
 </details>
 
-<details><summary>Implementations</summary>
+<details><summary>🎯 Solutions</summary>
 <br/>
 
 *Kotlin*
