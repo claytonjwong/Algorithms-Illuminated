@@ -1222,6 +1222,540 @@ int main() {
 
 </details>
 
+## Kosaraju Strongly Connected Components
+
+<details><summary>Lectures</summary>
+<br/>
+
+* [Computing Strongly Connected Components (Part 1) (Section 8.6, Part 1)](https://www.youtube.com/watch?v=O98hLTYVN3c&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=9)
+* [Computing Strongly Connected Components (Part 2) (Section 8.6, Part 2)](https://www.youtube.com/watch?v=gbs3UNRJIYk&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=10)
+* [The Structure of the Web (Section 8.7)](https://www.youtube.com/watch?v=7YodysGShlo&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=11)
+
+</details>
+
+<details><summary>Implementations</summary>
+<br/>
+
+*Kotlin*
+```java
+import java.util.Stack
+import java.io.File
+
+class RecursiveSolution(var adj: MutableMap<Int, MutableList<Int>>, var rev: MutableMap<Int, MutableList<Int>>) {
+    fun topo_sort(): MutableList<Int> {
+        var list = mutableListOf<Int>()
+        var seen = mutableSetOf<Int>()
+        fun go(u: Int) {
+            if (seen.contains(u))
+                return
+            seen.add(u)
+            for (v in rev[u]!!)
+                go(v)
+            list.add(0, u)
+        }
+        for ((u, _) in rev)
+            go(u)
+        return list
+    }
+    fun kosaraju(): MutableList<List<Int>> {
+        var lists = mutableListOf<List<Int>>()
+        var seen = mutableSetOf<Int>()
+        fun go(u: Int, list: MutableList<Int>) {
+            if (seen.contains(u))
+                return
+            list.add(u); seen.add(u)
+            for (v in adj[u]!!)
+                go(v, list)
+        }
+        for (u in topo_sort()) {
+            if (seen.contains(u))
+                continue
+            var list = mutableListOf<Int>()
+            go(u, list)
+            lists.add(list.toList())
+        }
+        return lists
+    }
+}
+
+class IterativeSolution(var adj: MutableMap<Int, MutableList<Int>>, var rev: MutableMap<Int, MutableList<Int>>) {
+    fun topo_sort(): MutableList<Int> {
+        var list = mutableListOf<Int>()
+        var seen = mutableSetOf<Int>()
+        for ((u, _) in rev) {
+            if (seen.contains(u))
+                continue
+            var stack = Stack<Int>()
+            stack.push(u); seen.add(u)
+            while (!stack.empty()) {
+                var u = stack.last()
+                for (v in rev[u]!!) {
+                    if (!seen.contains(v)) {
+                        stack.push(v); seen.add(v)
+                    }
+                }
+                if (u == stack.last())
+                    list.add(0, stack.pop())
+            }
+        }
+        return list
+    }
+    fun kosaraju(): MutableList<List<Int>> {
+        var lists = mutableListOf<List<Int>>()
+        var seen = mutableSetOf<Int>()
+        for (u in topo_sort()) {
+            if (seen.contains(u))
+                continue
+            var list = mutableListOf<Int>()
+            var stack = Stack<Int>()
+            stack.push(u); seen.add(u)
+            while (!stack.empty()) {
+                var u = stack.last()
+                for (v in adj[u]!!) {
+                    if (!seen.contains(v)) {
+                        stack.push(v); seen.add(v)
+                    }
+                }
+                if (u == stack.last())
+                    list.add(stack.pop())
+            }
+            lists.add(list.toList())
+        }
+        return lists
+    }
+}
+
+fun run(filename: String) {
+    var adj = mutableMapOf<Int, MutableList<Int>>()
+    var rev = mutableMapOf<Int, MutableList<Int>>()
+    File(filename).forEachLine {
+        var (u, v) = it.trim().split(" ").map{ it.toInt() }
+        if (!adj.contains(u)) adj[u] = mutableListOf(); if (!adj.contains(v)) adj[v] = mutableListOf()
+        if (!rev.contains(u)) rev[u] = mutableListOf(); if (!rev.contains(v)) rev[v] = mutableListOf()
+        adj[u]!!.add(v)
+        rev[v]!!.add(u)
+    }
+    // var solution = RecursiveSolution(adj, rev)
+    var solution = IterativeSolution(adj, rev)
+    var A = solution.kosaraju()
+    A.sortWith(Comparator{ a: List<Int>, b: List<Int> -> b.size - a.size })
+    println(filename + ": " + A.map{ it.size }.slice(0 until Math.min(A.size, 5)).joinToString(" "))
+}
+
+fun main() {
+    run("section8.6.5page64.txt");  // Graph from section 8.6.5 on page 64 of Algorithms Illuminated: Part 2
+    run("problem8.10test1.txt");    // Test case #1: A 9-vertex 11-edge graph. Top 5 SCC sizes: 3,3,3,0,0
+    run("problem8.10test2.txt");    // Test case #2: An 8-vertex 14-edge graph. Top 5 SCC sizes: 3,3,2,0,0
+    run("problem8.10test3.txt");    // Test case #3: An 8-vertex 9-edge graph. Top 5 SCC sizes: 3,3,1,1,0
+    run("problem8.10test4.txt");    // Test case #4: An 8-vertex 11-edge graph. Top 5 SCC sizes: 7,1,0,0,0
+    run("problem8.10test5.txt");    // Test case #5: A 12-vertex 20-edge graph. Top 5 SCC sizes: 6,3,2,1,0
+    run("problem8.10.txt");         // Challenge data set: Vertices are labeled as positive integers from 1 to 875714
+
+//    section8.6.5page64.txt: 4 3 3 1
+//    problem8.10test1.txt: 3 3 3
+//    problem8.10test2.txt: 3 3 2
+//    problem8.10test3.txt: 3 3 1 1
+//    problem8.10test4.txt: 7 1
+//    problem8.10test5.txt: 6 3 2 1
+//    problem8.10.txt: 434821 968 459 313 211
+
+}
+```
+
+*Javascript*
+```javascript
+class BaseSolution {
+    constructor(adj, rev) {
+        this.adj = adj;
+        this.rev = rev;
+    }
+}
+
+class RecursiveSolution extends BaseSolution {
+    constructor(adj, rev) {
+        super(adj, rev);
+    }
+    topo_sort() {
+        let list = [];
+        let seen = new Set();
+        let go = u => {
+            if (seen.has(u))
+                return;
+            seen.add(u);
+            for (let v of [...this.rev.get(u)])
+                go(v);
+            list.unshift(u);
+        };
+        for (let [u, _] of [...this.rev])
+            go(u);
+        return list;
+    }
+    kosaraju() {
+        let lists = [];
+        let seen = new Set();
+        let go = (u, list) => {
+            if (seen.has(u))
+                return;
+            seen.add(u);
+            list.push(u);
+            for (let v of [...this.adj.get(u)])
+                go(v, list);
+        };
+        for (let u of this.topo_sort()) {
+            let list = [];
+            go(u, list);
+            lists.push([...list]);
+        }
+        lists.sort((a, b) => b.length - a.length);
+        return lists;
+    }
+}
+
+class IterativeSolution extends BaseSolution {
+    constructor(adj, rev) {
+        super(adj, rev);
+    }
+    topo_sort() {
+        let list = [];
+        let seen = new Set();
+        for (let [u, _] of [...this.rev]) {
+            if (seen.has(u))
+                continue;
+            let stack = [ u ]; seen.add(u);
+            stack.back = () => stack[stack.length - 1];
+            while (stack.length) {
+                let u = stack.back();
+                for (let v of [...this.rev.get(u)])
+                    if (!seen.has(v))
+                        stack.push(v), seen.add(v);
+                if (u == stack.back())
+                    list.unshift(stack.pop());
+            }
+        }
+        return list;
+    }
+    kosaraju() {
+        let lists = [];
+        let seen = new Set();
+        for (let u of this.topo_sort()) {
+            if (seen.has(u))
+                continue;
+            let list = [];
+            let stack = [ u ]; seen.add(u);
+            stack.back = () => stack[stack.length - 1];
+            while (stack.length) {
+                let u = stack.back();
+                for (let v of [...this.adj.get(u)])
+                    if (!seen.has(v))
+                        stack.push(v), seen.add(v);
+                if (u == stack.back())
+                    list.push(stack.pop());
+            }
+            lists.push([...list]);
+        }
+        lists.sort((a, b) => b.length - a.length);
+        return lists;
+    }
+}
+
+let run = filename => {
+    let adj = new Map(),
+        rev = new Map();
+    let LineByLine = require('n-readlines');
+    let input = new LineByLine(filename);
+    let line;
+    while (line = input.next()) {
+        let [u, v] = String.fromCharCode(...line).split(' ').map(Number);
+        if (!adj.has(u)) adj.set(u, []); if (!adj.has(v)) adj.set(v, []);
+        if (!rev.has(u)) rev.set(u, []); if (!rev.has(v)) rev.set(v, []);
+        adj.get(u).push(v);
+        rev.get(v).push(u);
+    }
+    // let A = new RecursiveSolution(adj, rev).kosaraju();
+    let A = new IterativeSolution(adj, rev).kosaraju();
+    console.log(`${filename}: ${A.slice(0, Math.min(A.length, 5)).map(scc => scc.length).join(' ')}`);
+};
+
+run('section8.6.5page64.txt')  // Graph from section 8.6.5 on page 64 of Algorithms Illuminated: Part 2
+run('problem8.10test1.txt')    // Test case #1: A 9-vertex 11-edge graph. Top 5 SCC sizes: 3,3,3,0,0
+run('problem8.10test2.txt')    // Test case #2: An 8-vertex 14-edge graph. Top 5 SCC sizes: 3,3,2,0,0
+run('problem8.10test3.txt')    // Test case #3: An 8-vertex 9-edge graph. Top 5 SCC sizes: 3,3,1,1,0
+run('problem8.10test4.txt')    // Test case #4: An 8-vertex 11-edge graph. Top 5 SCC sizes: 7,1,0,0,0
+run('problem8.10test5.txt')    // Test case #5: A 12-vertex 20-edge graph. Top 5 SCC sizes: 6,3,2,1,0
+run('problem8.10.txt')         // Challenge data set: Vertices are labeled as positive integers from 1 to 875714
+
+
+//    section8.6.5page64.txt: 4 3 3 1
+//    problem8.10test1.txt: 3 3 3
+//    problem8.10test2.txt: 3 3 2
+//    problem8.10test3.txt: 3 3 1 1
+//    problem8.10test4.txt: 7 1
+//    problem8.10test5.txt: 6 3 2 1
+//    problem8.10.txt: 434821 968 459 313 211
+```
+
+*Python3*
+```python
+from collections import deque
+from functools import cmp_to_key
+
+class BaseSolution:
+    def __init__(self, adj, rev):
+        self.adj = adj
+        self.rev = rev
+
+class RecursiveSolution(BaseSolution):
+    def topo_sort(self):
+        list = deque()
+        seen = set()
+        def go(u):
+            if u in seen:
+                return
+            seen.add(u)
+            for v in self.rev[u]:
+                go(v)
+            list.appendleft(u)
+        for u in self.rev.keys():
+            go(u)
+        return list
+
+    def kosaraju(self):
+        lists = []
+        seen = set()
+        def go(u, list):
+            if u in seen:
+                return
+            seen.add(u)
+            list.append(u)
+            for v in self.adj[u]:
+                go(v, list)
+        for u in self.topo_sort():
+            list = []
+            go(u, list)
+            lists.append(list.copy())
+        lists.sort(key = cmp_to_key(lambda a, b: len(b) - len(a)))
+        return lists
+
+class IterativeSolution(BaseSolution):
+    def topo_sort(self):
+        list = deque()
+        seen = set()
+        for u in self.rev.keys():
+            if u in seen:
+                continue
+            stack = [ u ]; seen.add(u)
+            while len(stack):
+                u = stack[-1]
+                for v in self.rev[u]:
+                    if v not in seen:
+                        stack.append(v); seen.add(v)
+                if u == stack[-1]:
+                    list.appendleft(stack.pop())
+        return list
+
+    def kosaraju(self):
+        lists = []
+        seen = set()
+        for u in self.topo_sort():
+            if u in seen:
+                continue
+            list = deque()
+            stack = [ u ]; seen.add(u)
+            while len(stack):
+                u = stack[-1]
+                for v in self.adj[u]:
+                    if v not in seen:
+                        stack.append(v); seen.add(v)
+                if u == stack[-1]:
+                    list.appendleft(stack.pop())
+            lists.append(list.copy())
+        lists.sort(key = cmp_to_key(lambda a, b: len(b) - len(a)))
+        return lists
+
+def run(filename):
+    adj, rev = {}, {}
+    with open(filename) as fin:
+        while True:
+            line = fin.readline().strip()
+            if not line:
+                break
+            u, v = [int(x) for x in line.split()]
+            if u not in adj: adj[u] = []
+            if v not in adj: adj[v] = []
+            if u not in rev: rev[u] = []
+            if v not in rev: rev[v] = []
+            adj[u].append(v)
+            rev[v].append(u)
+    # solution = RecursiveSolution(adj, rev)
+    solution = IterativeSolution(adj, rev)
+    A = solution.kosaraju()
+    print(filename + ': ' + ' '.join(str(len(scc)) for scc in A[:5]))
+
+run('section8.6.5page64.txt')  # Graph from section 8.6.5 on page 64 of Algorithms Illuminated: Part 2
+run('problem8.10test1.txt')    # Test case #1: A 9-vertex 11-edge graph. Top 5 SCC sizes: 3,3,3,0,0
+run('problem8.10test2.txt')    # Test case #2: An 8-vertex 14-edge graph. Top 5 SCC sizes: 3,3,2,0,0
+run('problem8.10test3.txt')    # Test case #3: An 8-vertex 9-edge graph. Top 5 SCC sizes: 3,3,1,1,0
+run('problem8.10test4.txt')    # Test case #4: An 8-vertex 11-edge graph. Top 5 SCC sizes: 7,1,0,0,0
+run('problem8.10test5.txt')    # Test case #5: A 12-vertex 20-edge graph. Top 5 SCC sizes: 6,3,2,1,0
+run('problem8.10.txt')         # Challenge data set: Vertices are labeled as positive integers from 1 to 875714
+
+#    section8.6.5page64.txt: 4 3 3 1
+#    problem8.10test1.txt: 3 3 3
+#    problem8.10test2.txt: 3 3 2
+#    problem8.10test3.txt: 3 3 1 1
+#    problem8.10test4.txt: 7 1
+#    problem8.10test5.txt: 6 3 2 1
+#    problem8.10.txt: 434821 968 459 313 211
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+
+using namespace std;
+
+using List = deque<int>;
+using Lists = deque<List>;
+using AdjList = unordered_map<int, List>;
+using Set = unordered_set<int>;
+using Map = unordered_map<int, int>;
+
+namespace Base {
+    class Solution {
+    protected:
+        AdjList adj, rev;
+    public:
+        Solution(AdjList& adj, AdjList& rev) : adj{ adj }, rev{ rev } {}
+    };
+}
+namespace Recursive {
+    struct Solution : public Base::Solution {
+        Solution(AdjList& adj, AdjList& rev) : Base::Solution{ adj, rev } {}
+        Lists kosaraju() {
+            Lists lists;
+            Set seen;
+            auto order = topo_sort();
+            using fun = function<void(int, List&)>;
+            fun go = [&](auto u, auto& list) {
+                if (!seen.insert(u).second)
+                    return;
+                list.push_back(u);
+                for (auto v: adj[u])
+                    go(v, list);
+            };
+            for (auto u: order) {
+                List list;
+                go(u, list);
+                lists.emplace_back(list);
+            }
+            sort(lists.begin(), lists.end(), [](auto& a, auto& b) { return b.size() < a.size(); });
+            return lists;
+        }
+        List topo_sort() {
+            List list;
+            Set seen;
+            using fun = function<void(int)>;
+            fun go = [&](auto u) {
+                if (!seen.insert(u).second)
+                    return;
+                for (auto v: rev[u])
+                    go(v);
+                list.push_front(u);
+            };
+            for (auto [u, _]: rev)
+                go(u);
+            return list;
+        }
+    };
+}
+namespace Iterative {
+    struct Solution : public Base::Solution {
+        Solution(AdjList& adj, AdjList& rev) : Base::Solution{ adj, rev } {}
+        Lists kosaraju() {
+            Lists lists;
+            Set seen;
+            for (auto u: topo_sort()) {
+                if (seen.find(u) != seen.end())
+                    continue;
+                List list;
+                List stack{ u }; seen.insert(u);
+                while (stack.size()) {
+                    auto u = stack.back();
+                    for (auto v: adj[u])
+                        if (seen.insert(v).second)
+                            stack.push_back(v);
+                    if (u == stack.back())
+                        list.push_back(u), stack.pop_back();
+                }
+                lists.emplace_back(list);
+            }
+            sort(lists.begin(), lists.end(), [](auto& a, auto& b) { return b.size() < a.size(); });
+            return lists;
+        }
+        List topo_sort() {
+            List list;
+            Set seen;
+            for (auto [u, _]: rev) {
+                if (seen.find(u) != seen.end())
+                    continue;
+                List stack{ u }; seen.insert(u);
+                while (stack.size()) {
+                    auto u = stack.back();
+                    for (auto v: rev[u])
+                        if (seen.insert(v).second)
+                            stack.push_back(v);
+                    if (u == stack.back())
+                        list.push_front(stack.back()), stack.pop_back();
+                }
+            }
+            return list;
+        }
+    };
+}
+
+void run(string filename) {
+    int u, v;
+    AdjList adj, rev;
+    fstream fin{ filename };
+    for (string line; fin >> u >> v;) {
+        adj[u].push_back(v);
+        rev[v].push_back(u);
+    }
+    auto A = Iterative::Solution{ adj, rev }.kosaraju();
+    A.resize(min(A.size(), size_t(5)));
+    cout << filename << ": ";
+    for (auto i{ 0 }; i < A.size(); cout << A[i++].size() << " ");
+    cout << endl;
+}
+
+int main() {
+    run("section8.6.5page64.txt");  // Graph from section 8.6.5 on page 64 of Algorithms Illuminated: Part 2
+    run("problem8.10test1.txt");    // Test case #1: A 9-vertex 11-edge graph. Top 5 SCC sizes: 3,3,3,0,0
+    run("problem8.10test2.txt");    // Test case #2: An 8-vertex 14-edge graph. Top 5 SCC sizes: 3,3,2,0,0
+    run("problem8.10test3.txt");    // Test case #3: An 8-vertex 9-edge graph. Top 5 SCC sizes: 3,3,1,1,0
+    run("problem8.10test4.txt");    // Test case #4: An 8-vertex 11-edge graph. Top 5 SCC sizes: 7,1,0,0,0
+    run("problem8.10test5.txt");    // Test case #5: A 12-vertex 20-edge graph. Top 5 SCC sizes: 6,3,2,1,0
+    run("problem8.10.txt");         // Challenge data set: Vertices are labeled as positive integers from 1 to 875714
+
+//    section8.6.5page64.txt: 4 3 3 1
+//    problem8.10test1.txt: 3 3 3
+//    problem8.10test2.txt: 3 3 2
+//    problem8.10test3.txt: 3 3 1 1
+//    problem8.10test4.txt: 7 1
+//    problem8.10test5.txt: 6 3 2 1
+//    problem8.10.txt: 434821 968 459 313 211
+
+    return 0;
+}
+```
+
+</details>
+
 </details>
 
 ---
