@@ -973,17 +973,21 @@ class Solution {
     }
     bfs() {
         let degree = new Map();
-        for (let [u, _] of [...this.adj])
+        for (let [u, _] of [...this.adj]) {
+            degree.set(u, (degree.get(u) || 0));
             for (let v of this.adj.get(u))
                 degree.set(v, 1 + (degree.get(v) || 0));
-        let q = [...this.adj].map(([u, _]) => u).filter(u => !degree.has(u));
+        }
+        let q = [...this.adj].map(([u, _]) => u).filter(u => !degree.get(u));
         let seen = new Set(q);
         while (q.length) {
             let u = q.shift();
             this.m.set(u, this.color++);
-            for (let v of this.adj.get(u))
-                if (!seen.has(v))
+            for (let v of this.adj.get(u)) {
+                degree.set(v, -1 + degree.get(v));
+                if (!degree.get(v) && !seen.has(v))
                     q.push(v), seen.add(v);
+            }
         }
     }
     dfs(u) {
