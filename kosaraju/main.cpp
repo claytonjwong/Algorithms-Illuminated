@@ -27,7 +27,6 @@ namespace Recursive {
         Lists kosaraju() {
             Lists lists;
             Set seen;
-            auto order = topo_sort();
             using fun = function<void(int, List&)>;
             fun go = [&](auto u, auto& list) {
                 if (!seen.insert(u).second)
@@ -36,7 +35,7 @@ namespace Recursive {
                 for (auto v: adj[u])
                     go(v, list);
             };
-            for (auto u: order) {
+            for (auto u: topo_sort()) {
                 List list;
                 go(u, list);
                 lists.emplace_back(list);
