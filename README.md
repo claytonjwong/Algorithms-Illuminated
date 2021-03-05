@@ -1766,6 +1766,484 @@ int main() {
 
 </details>
 
+---
+
+## Dijkstra
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Shortest Paths and Dijkstra's Algorithm (Sections 9.1 and 9.2, Part 1)](https://www.youtube.com/watch?v=jRlNVmRjdRk&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=12)
+* [Dijkstra's Algorithm: Examples (Section 9.2, Part 2)](https://www.youtube.com/watch?v=ahYhIzLklYo&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=13)
+* [Correctness of Dijkstra's Algorithm (Section 9.3)](https://www.youtube.com/watch?v=sb7j3EW055M&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=14)
+* [Implementation and Running Time of Dijkstra's Algorithm (0:00-4:30) (Section 9.4)](https://www.youtube.com/watch?v=00LtSn_PQjc&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=15)
+* [Data Structures Overview (Section 10.1)](https://www.youtube.com/watch?v=cMrQxxrKg8I&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=16)
+* [Heaps: Operations and Applications (Sections 10.2 and 10.3)](https://www.youtube.com/watch?v=mNYHDv7SbDI&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=17)
+* [Speeding Up Dijkstra's Algorithm With Heaps (4:30-26:27) (Section 10.4)](https://www.youtube.com/watch?v=00LtSn_PQjc&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=15)
+* [Heaps: Implementation Details (Section 10.5)](https://www.youtube.com/watch?v=6VI5kJu8Mv4&list=PLEGCF-WLh2RJ5W-pt-KE9GUArTDzVwL1P&index=19&t=0s)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```java
+import java.io.File
+import java.util.PriorityQueue
+
+var INF = (1e9 + 7).toInt()
+
+interface BaseSolution {
+    fun run(filename: String, queries: Array<Int>): String
+}
+
+class NaiveSolution : BaseSolution {
+    fun dijkstra(E: List<Triple<Int, Int, Int>>): MutableMap<Int, Int> {
+        var dist = mutableMapOf<Int, Int>()
+        var seen = mutableSetOf<Int>()
+        var start = 1
+        dist[start] = 0; seen.add(start)
+        var found: Boolean;
+        do {
+            found = false
+            var best_v = INF
+            var best_w = INF
+            for ((u, v, w) in E) {
+                if (!seen.contains(u) || seen.contains(v))
+                    continue
+                found = true
+                if (best_w > dist[u]!! + w) {
+                    best_v = v
+                    best_w = dist[u]!! + w
+                }
+            }
+            var v = best_v
+            var w = best_w
+            dist[v] = w; seen.add(v)
+        } while (found)
+        return dist
+    }
+    override fun run(filename: String, queries: Array<Int>): String {
+        var E = mutableListOf<Triple<Int, Int, Int>>()
+        File(filename).forEachLine {
+            var words = it.trim().split("\t")
+            var u = words[0].toInt()
+            for (i in 1 until words.size) {
+                var (v, w) = words[i].split(",").map{ it.toInt() }
+                E.add(Triple(u, v, w))
+            }
+        }
+        var dist = dijkstra(E.toList())
+        return queries.map{ dist[it] }.joinToString(" ")
+    }
+}
+
+class HeapSolution : BaseSolution {
+    fun dijkstra(adj: MutableMap<Int, MutableList<Pair<Int, Int>>>): MutableMap<Int, Int> {
+        var dist = mutableMapOf<Int, Int>()
+        var seen = mutableSetOf<Int>()
+        var start = 1
+        dist[start] = 0
+        var q = PriorityQueue<Pair<Int, Int>>(Comparator{ a: Pair<Int, Int>, b: Pair<Int, Int> -> a.first.compareTo(b.first) })
+        q.add(Pair(0, start))
+        while (0 < q.size) {
+            var (cost, u) = q.poll()
+            if (seen.contains(u))
+                continue
+            dist[u] = cost; seen.add(u)
+            for ((w, v) in adj[u]!!) {
+                if (seen.contains(v))
+                    continue
+                q.add(Pair(cost + w, v))
+            }
+        }
+        return dist
+    }
+    override fun run(filename: String, queries: Array<Int>): String {
+        var adj = mutableMapOf<Int, MutableList<Pair<Int, Int>>>()
+        File(filename).forEachLine {
+            var words = it.trim().split("\t")
+            var u = words[0].toInt()
+            if (!adj.contains(u))
+                adj[u] = mutableListOf()
+            for (i in 1 until words.size) {
+                var (v, w) = words[i].split(",").map{ it.toInt() }
+                adj[u]!!.add(Pair(w, v))
+            }
+        }
+        var dist = dijkstra(adj)
+        return queries.map{ dist[it] }.joinToString(" ")
+    }
+}
+
+fun run(solution: BaseSolution) {
+    println(solution.run("problem9.8test.txt", arrayOf(1, 2, 3, 4, 5, 6, 7, 8)))
+    println(solution.run("problem9.8.txt", arrayOf(7, 37, 59, 82, 99, 115, 133, 165, 188, 197)))
+}
+
+fun main() {
+    run(NaiveSolution())
+    //    0 1 2 3 4 4 3 2
+    //    2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+    run(HeapSolution())
+    //    0 1 2 3 4 4 3 2
+    //    2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+}
+```
+
+*Javascript*
+```javascript
+let LineByLine = require('n-readlines');
+
+let INF = Number(1e9 + 7);
+
+class NaiveSolution {
+    dijkstra(E) {
+        let dist = new Map();
+        let seen = new Set();
+        let start = 1;
+        dist[start] = 0; seen.add(start);
+        for (;;) {
+            let found = false;
+            let best_v = INF,
+                best_w = INF;
+            for (let [u, v, w] of E) {
+                if (!seen.has(u) || seen.has(v))
+                    continue;
+                found = true;
+                if (best_w > dist[u] + w)
+                    best_v = v,
+                    best_w = dist[u] + w;
+            }
+            if (!found)
+                break;
+            let [v, w] = [best_v, best_w];
+            dist[v] = w; seen.add(v);
+        }
+        return dist;
+    }
+    run(filename, queries) {
+        let E = [];
+        let input = new LineByLine(filename);
+        let line;
+        while (line = input.next()) {
+            let words = String.fromCharCode(...line).trim().split(/\s+/);
+            let u = Number(words[0]);
+            for (let i = 1; i < words.length; ++i) {
+                let [v, w] = words[i].split(',').map(Number);
+                E.push([ u, v, w ]);
+            }
+        }
+        let dist = this.dijkstra(E);
+        return queries.map(x => dist[x]).join(' ');
+    }
+}
+
+let heapkey = x => Array.isArray(x) ? x[0] : x;
+let heappush = (A, x, f = Math.min) => {
+    let P = i => Math.floor((i - 1) / 2);  // parent
+    A.push(x);
+    let N = A.length,
+        i = N - 1;
+    while (0 < i && heapkey(A[i]) == f(heapkey(A[i]), heapkey(A[P(i)]))) {
+        [A[i], A[P(i)]] = [A[P(i)], A[i]];
+        i = P(i);
+    }
+};
+let heappop = (A, f = Math.min) => {
+    let L = i => 2 * i + 1,  // children
+        R = i => 2 * i + 2;
+    let N = A.length,
+        i = 0;
+    let top = A[0];
+    [A[0], A[N - 1]] = [A[N - 1], A[0]], A.pop(), --N;
+    let ok = true;
+    do {
+        ok = true;
+        let left = f == Math.min ? Infinity : -Infinity,
+            right = left;
+        if (L(i) < N && heapkey(A[i]) != f(heapkey(A[i]), heapkey(A[L(i)]))) ok = false, left  = heapkey(A[L(i)]);
+        if (R(i) < N && heapkey(A[i]) != f(heapkey(A[i]), heapkey(A[R(i)]))) ok = false, right = heapkey(A[R(i)]);
+        if (!ok) {
+            let j = left == f(left, right) ? L(i) : R(i);
+            [A[i], A[j]] = [A[j], A[i]];
+            i = j;
+        }
+    } while (!ok);
+    return top;
+};
+
+class HeapSolution {
+    dijkstra(adj) {
+        let dist = {};
+        let seen = new Set();
+        let start = 1;
+        let q = [[ 0, start ]];
+        while (q.length) {
+            let [cost, u] = heappop(q);
+            if (seen.has(u))
+                continue;
+            dist[u] = cost, seen.add(u);
+            for (let [w, v] of (adj[u] || []))
+                heappush(q, [ dist[u] + w, v ]);
+        }
+        return dist;
+    }
+    run(filename, queries) {
+        let adj = {};
+        let input = new LineByLine(filename);
+        let line;
+        while (line = input.next()) {
+            let words = String.fromCharCode(...line).trim().split('\t');
+            let u = Number(words[0]);
+            if (!(u in adj))
+                adj[u] = [];
+            for (let i = 1; i < words.length; ++i) {
+                let [v, w] = words[i].split(',').map(Number);
+                adj[u].push([ w, v ]);
+            }
+        }
+        let dist = this.dijkstra(adj);
+        return queries.map(x => dist[x]).join(' ');
+    }
+}
+
+let run = solution => {
+    console.log(solution.run('problem9.8test.txt', [1, 2, 3, 4, 5, 6, 7, 8]));
+    console.log(solution.run('problem9.8.txt', [7, 37, 59, 82, 99, 115, 133, 165, 188, 197]));
+};
+
+run(new NaiveSolution());
+//    0 1 2 3 4 4 3 2
+//    2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+
+run(new HeapSolution());
+//    0 1 2 3 4 4 3 2
+//    2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+```
+
+*Python3*
+```python
+from abc import ABC, abstractmethod
+from heapq import heappush, heappop
+
+INF = int(1e9 + 7)
+
+class BaseSolution(ABC):
+    @abstractmethod
+    def run(self, filename, queries):
+        raise NotImplementedError
+
+class NaiveSolution(BaseSolution):
+    def dijkstra(self, E):
+        dist = {}
+        seen = set()
+        start = 1
+        dist[start] = 0; seen.add(start)
+        while True:
+            found = False
+            best_v = INF
+            best_w = INF
+            for u, v, w in E:
+                if u not in seen or v in seen:
+                    continue
+                found = True
+                if best_w > dist[u] + w:
+                    best_v = v
+                    best_w = dist[u] + w
+            if not found:
+                break
+            v, w = best_v, best_w
+            dist[v] = w; seen.add(v)
+        return dist
+    def run(self, filename, queries):
+        E = []
+        with open(filename) as fin:
+            while True:
+                line = fin.readline()
+                if not line:
+                    break
+                words = line.split()
+                u = int(words[0])
+                for i in range(1, len(words)):
+                    v, w = map(int, words[i].split(','))
+                    E.append([ u, v, w ])
+        dist = self.dijkstra(E)
+        return ' '.join(str(dist[x]) for x in queries)
+
+class HeapSolution(BaseSolution):
+    def dijkstra(self, adj, start = 1):
+        dist = {}
+        seen = set()
+        q = [[ 0, start ]]
+        while len(q):
+            cost, u = heappop(q)
+            if u in seen:
+                continue
+            dist[u] = cost; seen.add(u)
+            for w, v in adj[u]:
+                if v not in seen:
+                    heappush(q, [ dist[u] + w, v ])
+        return dist
+    def run(self, filename, queries):
+        adj = {}
+        with open(filename) as fin:
+            while True:
+                line = fin.readline()
+                if not line:
+                    break
+                words = line.split()
+                u = int(words[0])
+                if u not in adj:
+                    adj[u] = []
+                for i in range(1, len(words)):
+                    v, w = map(int, words[i].split(','))
+                    adj[u].append([ w, v ])
+        dist = self.dijkstra(adj)
+        return ' '.join(str(dist[x]) for x in queries)
+
+def run(solution):
+    print(solution.run('problem9.8test.txt', [1, 2, 3, 4, 5, 6, 7, 8]))
+    print(solution.run('problem9.8.txt', [7, 37, 59, 82, 99, 115, 133, 165, 188, 197]))
+
+run(NaiveSolution())
+#    0 1 2 3 4 4 3 2
+#    2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+
+run(HeapSolution())
+#    0 1 2 3 4 4 3 2
+#    2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+
+using namespace std;
+
+using Queries = vector<int>;
+using Distance = unordered_map<int, int>;
+using Set = unordered_set<int>;
+
+class BaseSolution {
+protected:
+    static constexpr auto INF = int(1e9 + 7);
+public:
+    virtual string run(string filename, Queries&& queries) = 0;
+};
+
+class NaiveSolution : public BaseSolution {
+    using Edge = tuple<int, int, int>;
+    using Edges = vector<Edge>;
+public:
+    Distance dijkstra(Edges& E) {
+        Distance dist;
+        Set seen;
+        auto start{ 1 };
+        dist[start] = 0, seen.insert(start);
+        for (;;) {
+            auto found = false;
+            auto best_v = INF,
+                 best_w = INF;
+            for (auto [u, v, w]: E) {
+                if (seen.find(u) == seen.end() || seen.find(v) != seen.end())
+                    continue;
+                found = true;
+                if (best_w > dist[u] + w)
+                    best_v = v,
+                    best_w = dist[u] + w;
+            }
+            if (!found)
+                break;
+            auto [v, w] = tie(best_v, best_w);
+            dist[v] = w, seen.insert(v);
+        }
+        return dist;
+    }
+    string run(string filename, Queries&& queries) {
+        Edges E;
+        fstream fin{ filename };
+        string line;
+        int u, v, w;
+        char _;
+        while (getline(fin, line)) {
+            istringstream is{ line };
+            for (is >> u; is >> v >> _ >> w; E.push_back({ u, v, w }));
+        }
+        auto dist = dijkstra(E);
+        ostringstream os;
+        transform(queries.begin(), queries.end(), ostream_iterator<int>(os, " "), [&](auto x) { return dist[x]; });
+        return os.str();
+    }
+};
+
+class HeapSolution : public BaseSolution {
+    using Pair = pair<int, int>;
+    using Pairs = vector<Pair>;
+    using AdjList = unordered_map<int, Pairs>;
+    priority_queue<Pair, Pairs, std::greater<Pair>> q;
+public:
+    Distance dijkstra(AdjList& adj) {
+        Distance dist;
+        Set seen;
+        for (auto [u, _]: adj)
+            dist[u] = INF;
+        auto start{ 1 };
+        q.push({ 0, start });
+        while (q.size()) {
+            auto [cost, u] = q.top(); q.pop();
+            if (!seen.insert(u).second)
+                continue;
+            dist[u] = cost;
+            for (auto [w, v]: adj[u])
+                if (seen.find(v) == seen.end())
+                    q.push({ dist[u] + w, v });
+        }
+        return dist;
+    }
+    string run(string filename, Queries&& queries) {
+        AdjList adj;
+        fstream fin{ filename };
+        string line;
+        int u, v, w;
+        char _;
+        while (getline(fin, line)) {
+            istringstream is{ line };
+            for (is >> u; is >> v >> _ >> w; adj[u].push_back({ w, v }));
+        }
+        auto dist = dijkstra(adj);
+        ostringstream os;
+        transform(queries.begin(), queries.end(), ostream_iterator<int>(os, " "), [&](auto x) { return dist[x]; });
+        return os.str();
+    }
+};
+
+void run(BaseSolution&& solution) {
+    cout << "problem9.8test.txt: " << solution.run("problem9.8test.txt", Queries{1, 2, 3, 4, 5, 6, 7, 8 }) << endl
+         << "problem9.8.txt      " << solution.run("problem9.8.txt", Queries{7, 37, 59, 82, 99, 115, 133, 165, 188, 197 }) << endl;
+}
+
+int main() {
+    run(NaiveSolution());
+//    problem9.8test.txt: 0 1 2 3 4 4 3 2
+//    problem9.8.txt      2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+
+    run(HeapSolution());
+//    problem9.8test.txt: 0 1 2 3 4 4 3 2
+//    problem9.8.txt      2599 2610 2947 2052 2367 2399 2029 2442 2505 3068
+    return 0;
+}
+```
+
+</details>
+
 </details>
 
 ---
