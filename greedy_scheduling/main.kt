@@ -49,7 +49,7 @@ fun run(filename: String) {
         }
     }
     var (diff, ratio) = Solution().minSum(jobs.toTypedArray())
-    println("$diff, $ratio")
+    println("$diff, $ratio") // sub-optimal, optimal
 }
 
 fun main() {
