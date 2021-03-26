@@ -2,7 +2,7 @@
 
 * [algorithmsilluminated.org](https://www.algorithmsilluminated.org/)
 
-Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/Algorithms) which began in 2017 has occurred in parallel with the publication of Tim Roughgarden's (TR) 4-book series about algorithms and data structures. Over these years, I've purchased, studied, and provided feedback on TR's books. I was totally stoked when TR sent me a free copy of his 4th book for review before publication in 2020! I'm amazed by what can be done in near-linear time, and it's awesome we can leverage these "for-free primitives" based upon computationally tractable problems as "building blocks" towards more complex solutions to computationally intractable (NP-Hard) problems via selective compromise on generality, correctness, and speed (ie. pick 2 of 3). Can we do better?
+Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/Algorithms) which began in 2017 has occurred in parallel with the publication of Tim Roughgarden's (TR) 4-book series about algorithms and data structures. Over these years, I've purchased, studied, and provided feedback on TR's books. I was totally stoked when TR sent me a free copy of his 4th book for review before publication in 2020! I'm amazed by what can be done in near-linear time (ie. the amount of time to perform an algorithm is on the order of time to simply read the input), and it's awesome we can leverage these "for-free primitives" based upon computationally tractable problems as "building blocks" towards more complex solutions to computationally intractable (NP-Hard) problems via selective compromise on generality, correctness, and speed (ie. pick 2 of 3). Can we do better?
 
 <p>
     <img src="TR1.png" height="256" width="400" />
@@ -11,7 +11,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 
 ---
 
-<details><summary><b>Part 1: The Basics</b></summary>
+# Part 1: The Basics
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282905" target="_blank">
@@ -828,11 +828,9 @@ int main() {
 
 </details>
 
-</details>
-
 ---
 
-<details><summary><b>Part 2: Graph Algorithms and Data Structures</b></summary>
+# Part 2: Graph Algorithms and Data Structures
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282921" target="_blank">
@@ -2244,11 +2242,9 @@ int main() {
 
 </details>
 
-</details>
-
 ---
 
-<details><summary><b>Part 3: Greedy Algorithms and Dynamic Programming</b></summary>
+# Part 3: Greedy Algorithms and Dynamic Programming
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282948" target="_blank">
@@ -2491,11 +2487,9 @@ int main() {
 
 </details>
 
-</details>
-
 ---
 
-<details><summary><b>Part 4: Algorithms for NP-Hard Problems</b></summary>
+# Part 4: Algorithms for NP-Hard Problems
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282964" target="_blank">
