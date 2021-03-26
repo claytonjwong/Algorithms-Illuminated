@@ -2255,6 +2255,242 @@ int main() {
     <img src="ai3large.jpg" />
 </a>
 
+## Greedy Scheduling
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* Introduction to Greedy Algorithms (Section 13.1)
+* A Scheduling Problem (Section 13.2)
+* Developing a Greedy Algorithm (Section 13.3)
+* Scheduling: Correctness Proof (Part 1) (Section 13.4, Part 1)
+* Scheduling: Correctness Proof (Part 2) (Section 13.4, Part 2)
+* Scheduling: Correctness Proof (Part 3) (Section 13.4, Part 3)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+data class Job(val weight: Long, val length: Long)
+
+class Solution {
+    fun minSum(jobs: Array<Job>): Pair<Long, Long> {
+        class Diff: Comparator<Job> {
+            override fun compare(a: Job?, b: Job?): Int {
+                if (a == null || b == null)
+                    return 0
+                var first = a.weight - a.length
+                var second = b.weight - b.length
+                return if (first == second) b.weight.compareTo(a.weight) else second.compareTo(first)
+            }
+        }
+        class Ratio: Comparator<Job> {
+            override fun compare(a: Job?, b: Job?): Int {
+                if (a == null || b == null)
+                    return 0
+                var first = a.weight.toDouble() / a.length
+                var second = b.weight.toDouble() / b.length
+                return if (first == second) b.weight.compareTo(a.weight) else second.compareTo(first)
+            }
+        }
+        return Pair(calcSum(jobs, Diff()), calcSum(jobs, Ratio()))
+    }
+    private fun calcSum(jobs: Array<Job>, comp: Comparator<Job>): Long {
+        jobs.sortWith(comp)
+        var time: Long = 0
+        var total: Long = 0
+        jobs.forEach { job ->
+            time += job.length
+            total += job.weight * time
+        }
+        return total
+    }
+}
+
+fun run(filename: String) {
+    var jobs = mutableListOf<Job>()
+    var first = true
+    File(filename).forEachLine {
+        if (!first) {
+            var words = it.trim().split(" ").map{ it.toLong() }
+            var (weight, length) = words
+            jobs.add(Job(weight, length))
+        } else {
+            first = false
+        }
+    }
+    var (diff, ratio) = Solution().minSum(jobs.toTypedArray())
+    println("$diff, $ratio")
+}
+
+fun main() {
+    run("problem13.4test1.txt") // 23, 22
+    run("problem13.4test2.txt") // 68615, 67247
+    run("problem13.4.txt")      // 69119377652, 67311454237
+}
+```
+
+*Javascript*
+```javascript
+let LineByLine = require('n-readlines');
+
+class Job {
+    constructor(weight, length) {
+        this.weight = weight;
+        this.length = length;
+    }
+}
+
+class Solution {
+    minSum(jobs) {
+        let diff = (a, b) => {
+            let first = a.weight - a.length,
+                second = b.weight - b.length;
+            return first == second ? b.weight - a.weight : second - first; // sort by descending difference, break ties in favor of jobs with larger weights
+        };
+        let ratio = (a, b) => {
+            let first = a.weight / a.length,
+                second = b.weight / b.length;
+            return first == second ? b.weight - a.weight : second - first; // sort by descending ratio, break ties in favor of jobs with larger weights
+        };
+        return [ this._calcSum(jobs, diff), this._calcSum(jobs, ratio) ];
+    }
+    _calcSum(jobs, comp, time = 0) {
+        jobs.sort((a, b) => comp(a, b));
+        return jobs.reduce((total, job) => total + job.weight * (time += job.length), 0);
+    }
+}
+
+let run = filename => {
+    let jobs = [];
+    let input = new LineByLine(filename);
+    let line = input.next(); // N
+    while (line = input.next()) {
+        let words = String.fromCharCode(...line).trim().split(' ');
+        let [weight, length] = words.map(Number);
+        jobs.push(new Job(weight, length));
+    }
+    let [diff, ratio] = new Solution().minSum(jobs);
+    console.log(`${diff}, ${ratio}`); // sub-optimal, optimal
+};
+
+run('problem13.4test1.txt'); // 23, 22
+run('problem13.4test2.txt'); // 68615, 67247
+run('problem13.4.txt');      // 69119377652, 67311454237
+```
+
+*Python3*
+```python
+from functools import cmp_to_key
+
+class Job:
+    def __init__(self, weight, length):
+        self.weight = weight
+        self.length = length
+
+class Solution:
+    def minSum(self, jobs):
+        def diff(a, b):
+            first = a.weight - a.length
+            second = b.weight - b.length
+            return b.weight - a.weight if first == second else second - first
+        def ratio(a, b):
+            first = a.weight / a.length
+            second = b.weight / b.length
+            return b.weight - a.weight if first == second else second - first
+        return [ self._calcSum(jobs, diff), self._calcSum(jobs, ratio) ]
+    def _calcSum(self, jobs, comp, time = 0, total = 0):
+        jobs.sort(key = cmp_to_key(lambda a, b: comp(a, b)))
+        for job in jobs:
+            time += job.length
+            total += job.weight * time
+        return total
+
+def run(filename):
+    jobs = []
+    with open(filename) as fin:
+        line = fin.readline() # N
+        while True:
+            line = fin.readline().strip()
+            if not line:
+                break
+            words = line.split()
+            weight, length = [int(x) for x in words]
+            jobs.append(Job(weight, length))
+    diff, ratio = Solution().minSum(jobs)
+    print(f'{diff}, {ratio}') # sub-optimal, optimal
+
+run('problem13.4test1.txt') # 23, 22
+run('problem13.4test2.txt') # 68615, 67247
+run('problem13.4.txt')      # 69119377652, 67311454237
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <numeric>
+
+using namespace std;
+
+using LL = long long;
+struct Job {
+    LL weight, length;
+    Job(LL weight, LL length) : weight{ weight }, length{ length } {}
+};
+using Jobs = vector<Job>;
+
+class Solution {
+public:
+    using Pair = pair<LL, LL>; // sub-optimal, optimal
+    Pair minSum(Jobs& jobs) {
+        auto diff = [](auto& a, auto& b) {
+            auto first = a.weight - a.length,
+                 second = b.weight - b.length;
+            return first == second ? b.weight < a.weight : second < first; // sort by descending difference, break ties in favor of jobs with larger weights
+        };
+        auto ratio = [](auto& a, auto& b) {
+            auto first = double(a.weight) / a.length,
+                 second = double(b.weight) / b.length;
+            return first == second ? b.weight < a.weight : second < first; // sort by descending ratio, break ties in favor of jobs with larger weights
+        };
+        return { calcSum(jobs, diff), calcSum(jobs, ratio) };
+    }
+private:
+    template<typename Comp>
+    LL calcSum(Jobs& jobs, Comp comp, LL time = 0LL) {
+        sort(jobs.begin(), jobs.end(), comp);
+        return accumulate(jobs.begin(), jobs.end(), 0LL, [&](LL total, auto& job) {
+            return total += job.weight * (time += job.length);
+        });
+    }
+};
+
+void run(const string& filename) {
+    Jobs jobs;
+    LL N, weight, length;
+    fstream fin{ filename };
+    for (fin >> N; fin >> weight >> length; jobs.emplace_back(Job{ weight, length }));
+    auto [diff, ratio] = Solution().minSum(jobs);
+    cout << diff << ", " << ratio << endl;
+}
+
+int main() {
+    run("problem13.4test1.txt"); // 23, 22
+    run("problem13.4test2.txt"); // 68615, 67247
+    run("problem13.4.txt");      // 69119377652, 67311454237
+    return 0;
+}
+```
+
+</details>
+
 </details>
 
 ---
