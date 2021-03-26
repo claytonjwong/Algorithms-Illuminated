@@ -2260,12 +2260,12 @@ int main() {
 <details><summary>📚 Lectures</summary>
 <br/>
 
-* Introduction to Greedy Algorithms (Section 13.1)
-* A Scheduling Problem (Section 13.2)
-* Developing a Greedy Algorithm (Section 13.3)
-* Scheduling: Correctness Proof (Part 1) (Section 13.4, Part 1)
-* Scheduling: Correctness Proof (Part 2) (Section 13.4, Part 2)
-* Scheduling: Correctness Proof (Part 3) (Section 13.4, Part 3)
+* [Introduction to Greedy Algorithms (Section 13.1)](https://www.youtube.com/watch?v=NTFmxA3qgoo&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=4&t=0s)
+* [A Scheduling Problem (Section 13.2)](https://www.youtube.com/watch?v=jK3d_GLzKQA&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=5)
+* [Developing a Greedy Algorithm (Section 13.3)](https://www.youtube.com/watch?v=AJOTgHYjL6A&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=6)
+* [Scheduling: Correctness Proof (Part 1) (Section 13.4, Part 1)](https://www.youtube.com/watch?v=oyLxydVkQwo&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=7)
+* [Scheduling: Correctness Proof (Part 2) (Section 13.4, Part 2)](https://www.youtube.com/watch?v=fmXVPYxmFsU&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=8)
+* [Scheduling: Correctness Proof (Part 3) (Section 13.4, Part 3)](https://www.youtube.com/watch?v=aBFG5PghX68&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=9)
 
 </details>
 
