@@ -5,8 +5,8 @@
 Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/Algorithms) which began in 2017 has occurred in parallel with the publication of Tim Roughgarden's (TR) 4-book series about algorithms and data structures. Over these years, I've purchased, studied, and provided feedback on TR's books. I was totally stoked when TR sent me a free copy of his 4th book for review before publication in 2020! I'm amazed by what can be done in near-linear time (ie. the amount of time to perform an algorithm is on the order of time to simply read the input), and it's awesome we can leverage these "for-free primitives" based upon computationally tractable problems as "building blocks" towards more complex solutions to computationally intractable (NP-Hard) problems via selective compromise on generality, correctness, and speed (ie. pick 2 of 3). Can we do better?
 
 <p>
-    <img src="TR1.png" height="256" width="400" />
-    <img src="TR2.png" height="256" width="400" />
+    <img src="images/TR1.png" height="256" width="400" />
+    <img src="images/TR2.png" height="256" width="400" />
 </p>
 
 ---
@@ -15,7 +15,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282905" target="_blank">
-    <img src="ai1large.jpg" />
+    <img src="images/ai1large.jpg" />
 </a>
 
 ---
@@ -834,7 +834,7 @@ int main() {
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282921" target="_blank">
-    <img src="ai2large.jpg" />
+    <img src="images/ai2large.jpg" />
 </a>
 
 ---
@@ -2248,7 +2248,7 @@ int main() {
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282948" target="_blank">
-    <img src="ai3large.jpg" />
+    <img src="images/ai3large.jpg" />
 </a>
 
 ## Greedy Scheduling
@@ -2493,7 +2493,7 @@ int main() {
 
 <br/>
 <a href="https://www.amazon.com/dp/0999282964" target="_blank">
-    <img src="ai4large.jpg" />
+    <img src="images/ai4large.jpg" />
 </a>
 
 </details>
