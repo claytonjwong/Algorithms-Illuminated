@@ -2282,7 +2282,7 @@ class Solution {
                     return 0
                 var first = a.weight - a.length
                 var second = b.weight - b.length
-                return if (first == second) b.weight.compareTo(a.weight) else second.compareTo(first)
+                return if (first == second) b.weight.compareTo(a.weight) else second.compareTo(first) // sort by descending difference, break ties in favor of jobs with larger weights
             }
         }
         class Ratio: Comparator<Job> {
@@ -2291,7 +2291,7 @@ class Solution {
                     return 0
                 var first = a.weight.toDouble() / a.length
                 var second = b.weight.toDouble() / b.length
-                return if (first == second) b.weight.compareTo(a.weight) else second.compareTo(first)
+                return if (first == second) b.weight.compareTo(a.weight) else second.compareTo(first) // sort by descending difference, break ties in favor of jobs with larger weights
             }
         }
         return Pair(calcSum(jobs, Diff()), calcSum(jobs, Ratio()))
@@ -2394,11 +2394,11 @@ class Solution:
         def diff(a, b):
             first = a.weight - a.length
             second = b.weight - b.length
-            return b.weight - a.weight if first == second else second - first
+            return b.weight - a.weight if first == second else second - first # sort by descending difference, break ties in favor of jobs with larger weights
         def ratio(a, b):
             first = a.weight / a.length
             second = b.weight / b.length
-            return b.weight - a.weight if first == second else second - first
+            return b.weight - a.weight if first == second else second - first # sort by descending difference, break ties in favor of jobs with larger weights
         return [ self._calcSum(jobs, diff), self._calcSum(jobs, ratio) ]
     def _calcSum(self, jobs, comp, time = 0, total = 0):
         jobs.sort(key = cmp_to_key(lambda a, b: comp(a, b)))
