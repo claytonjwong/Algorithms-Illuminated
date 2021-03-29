@@ -1,6 +1,7 @@
 # IDE
 .idea
 .vscode
+.python-version
 
 # Prerequisites
 *.d
