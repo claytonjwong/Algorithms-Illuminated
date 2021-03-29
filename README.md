@@ -2489,6 +2489,320 @@ int main() {
 
 ---
 
+## Huffman Codes
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Codes (Section 14.1)](https://www.youtube.com/watch?v=K3WZhFZT6Y0&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=33)
+* [Codes as Trees (Section 14.2)](https://www.youtube.com/watch?v=HESrV5VDu8c&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=34)
+* [Huffman's Greedy Algorithm (Part 1) (Section 14.3, Part 1)](https://www.youtube.com/watch?v=NM6FZB7IfS8&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=35)
+* [Huffman's Greedy Algorithm (Part 2) (Section 14.3, Part 2)](https://www.youtube.com/watch?v=PPmn9osMDyI&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=36)
+* [Huffman's Algorithm: Correctness Proof (Part 1) (Section 14.4, Part 1)](https://www.youtube.com/watch?v=jibgSDjWxdI&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=37)
+* [Huffman's Algorithm: Correctness Proof (Part 2) (Section 14.4, Part 2)](https://www.youtube.com/watch?v=dAjCcqZKYf4&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=38)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+import java.util.PriorityQueue
+
+var INF = (1e9 + 7).toInt()
+
+data class Tree(val weight: Int, val left: Tree? = null, val right: Tree? = null)
+
+fun encode(A: List<Int>): Tree {
+    var q = PriorityQueue<Tree>(Comparator{ a: Tree, b: Tree -> a.weight.compareTo(b.weight) })
+    for (weight in A)
+        q.add(Tree(weight))
+    while (1 < q.size) {
+        var a = q.poll()
+        var b = q.poll()
+        var c = Tree(a.weight + b.weight, a, b)
+        q.add(c)
+    }
+    return q.poll()
+}
+
+fun run(filename: String): Pair<Int, Int> {
+    var A = mutableListOf<Int>()
+    var first = true
+    File(filename).forEachLine {
+        if (!first) {
+            var weight = it.trim().toInt()
+            A.add(weight)
+        } else {
+            first = false
+        }
+    }
+    var tree = encode(A.toList())
+    var lo = INF
+    var hi = -INF
+    fun go(root: Tree? = tree, depth: Int = 0) {
+        if (root == null)
+            return
+        var isLeaf = { node: Tree? -> node?.left == null && node?.right == null }
+        if (isLeaf(root)) {
+            lo = Math.min(lo, depth)
+            hi = Math.max(hi, depth)
+        } else {
+            go(root.left, depth + 1)
+            go(root.right, depth + 1)
+        }
+    }
+    go()
+    return Pair(lo, hi)
+}
+
+fun main() {
+    for (filename in listOf("problem14.6test1.txt", "problem14.6test2.txt", "problem14.6.txt")) {
+        var (lo, hi) = run(filename)
+        println("$filename: $lo, $hi") // min, max encoding length in the corresponding optimal prefix-free tree
+    }
+}
+
+//    problem14.6test1.txt: 2, 5
+//    problem14.6test2.txt: 3, 6
+//    problem14.6.txt: 9, 19
+```
+
+*Javascript*
+```javascript
+let LineByLine = require('n-readlines');
+
+class Tree {
+    constructor(weight, left = null, right = null) {
+        this.weight = weight;
+        this.left = left;
+        this.right = right;
+    }
+}
+
+let key = x => Array.isArray(x) ? x[0] : x;
+let heappush = (A, x, f = Math.min) => {
+    let P = i => Math.floor((i - 1) / 2);  // parent
+    A.push(x);
+    let N = A.length,
+        i = N - 1;
+    while (0 < i && key(A[i]) == f(key(A[i]), key(A[P(i)]))) {
+        [A[i], A[P(i)]] = [A[P(i)], A[i]];
+        i = P(i);
+    }
+};
+let heappop = (A, f = Math.min) => {
+    let L = i => 2 * i + 1,  // children
+        R = i => 2 * i + 2;
+    let N = A.length,
+        i = 0;
+    let top = A[0];
+    [A[0], A[N - 1]] = [A[N - 1], A[0]], A.pop(), --N;
+    let ok;
+    do {
+        ok = true;
+        let left = f == Math.min ? Infinity : -Infinity,
+            right = left;
+        if (L(i) < N && key(A[i]) != f(key(A[i]), key(A[L(i)]))) ok = false, left  = key(A[L(i)]);
+        if (R(i) < N && key(A[i]) != f(key(A[i]), key(A[R(i)]))) ok = false, right = key(A[R(i)]);
+        if (!ok) {
+            let j = left == f(left, right) ? L(i) : R(i);
+            [A[i], A[j]] = [A[j], A[i]];
+            i = j;
+        }
+    } while (!ok);
+    return top;
+};
+
+let encode = A => {
+    let T = [];
+    for (let weight of A)
+        heappush(T, [ weight, new Tree(weight) ]);
+    while (1 < T.length) {
+        let [ a, b ] = [ heappop(T), heappop(T) ];
+        let c = [ a[0] + b[0], new Tree(a[0] + b[0], a[1], b[1]) ];
+        heappush(T, c);
+    }
+    return T[0][1];
+};
+
+let run = filename => {
+    let A = [];
+    let input = new LineByLine(filename);
+    let line;
+    line = input.next(); // N
+    while (line = input.next()) {
+        let weight = Number(String.fromCharCode(...line).trim());
+        A.push(weight);
+    }
+    let tree = encode(A);
+    let [ lo, hi ] = [ Infinity, -Infinity ];
+    let go = (root = tree, depth = 0) => {
+        if (!root)
+            return;
+        let isLeaf = root => !root.left && !root.right;
+        if (isLeaf(root))
+            lo = Math.min(lo, depth),
+            hi = Math.max(hi, depth);
+        else
+            go(root.left, depth + 1),
+            go(root.right, depth + 1);
+    };
+    go();
+    return [ lo, hi ];
+}
+
+for (let filename of [ 'problem14.6test1.txt', 'problem14.6test2.txt', 'problem14.6.txt' ]) {
+    let [lo, hi] = run(filename);
+    console.log(`${filename}: ${lo}, ${hi}`); // min, max encoding length in the corresponding optimal prefix-free tree
+}
+
+//    problem14.6test1.txt: 2, 5
+//    problem14.6test2.txt: 3, 6
+//    problem14.6.txt: 9, 19
+```
+
+*Python3*
+```python
+from heapq import heappush
+from heapq import heappop
+
+class Tree:
+    def __init__(self, weight, left = None, right = None):
+        self.weight = weight
+        self.left = left
+        self.right = right
+    def __lt__(self, other):
+        return self.weight < other.weight
+
+def encode(A):
+    T = []
+    for weight in A:
+        heappush(T, Tree(weight))
+    while 1 < len(T):
+        a, b = heappop(T), heappop(T)
+        c = Tree(a.weight + b.weight, a, b)
+        heappush(T, c)
+    return T[0]
+
+def run(filename):
+    A = []
+    with open(filename) as fin:
+        N = int(fin.readline())
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            weight = int(line.strip())
+            A.append(weight)
+    tree = encode(A)
+    lo, hi = float('inf'), float('-inf')
+    def go(root = tree, depth = 0):
+        nonlocal lo, hi
+        if not root:
+            return
+        isLeaf = lambda root: not root.left and not root.right
+        if isLeaf(root):
+            lo = min(lo, depth)
+            hi = max(hi, depth)
+        else:
+            go(root.left, depth + 1)
+            go(root.right, depth + 1)
+    go()
+    return [ lo, hi ]
+
+for filename in [ 'problem14.6test1.txt', 'problem14.6test2.txt', 'problem14.6.txt' ]:
+    lo, hi = run(filename)
+    print(f'{filename}: {lo}, {hi}') # min, max encoding length in the corresponding optimal prefix-free tree
+
+#    problem14.6test1.txt: 2, 5
+#    problem14.6test2.txt: 3, 6
+#    problem14.6.txt: 9, 19
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+using LL = long long;
+using Weight = LL;
+using Weights = vector<Weight>;
+
+struct Tree;
+using TreePtr = shared_ptr<Tree>;
+struct Tree {
+    Weight weight;
+    TreePtr left, right;
+    Tree(Weight weight, TreePtr left = nullptr, TreePtr right = nullptr) :
+            weight{ weight }, left{ left }, right{ right } {}
+};
+using TreePtrs = vector<TreePtr>;
+
+struct Comp {
+    size_t operator()(const TreePtr& a, const TreePtr& b) const {
+        return b->weight < a->weight;
+    }
+};
+using Queue = priority_queue<TreePtr, TreePtrs, Comp>;
+
+TreePtr encode(const Weights& A, Queue q = {}) {
+    for (auto weight: A)
+        q.emplace(make_shared<Tree>(weight));
+    while (1 < q.size()) {
+        auto a = q.top(); q.pop();
+        auto b = q.top(); q.pop();
+        q.emplace(make_shared<Tree>(a->weight + b->weight, a, b));
+    }
+    return q.top();
+}
+
+using MinMax = pair<LL, LL>;
+constexpr auto Min = numeric_limits<LL>::min();
+constexpr auto Max = numeric_limits<LL>::max();
+MinMax run(const string& filename) {
+    Weights A; // weight of each symbol
+    fstream fin{ filename };
+    LL N, weight;
+    for (fin >> N; fin >> weight; A.push_back(weight));
+    auto tree = encode(A);
+    LL lo = Max,
+       hi = Min;
+    using fun = function<void(TreePtr, int)>;
+    fun go = [&](auto root, LL depth) {
+        if (!root)
+            return;
+        auto isLeaf = [](auto root) { return !root->left && !root->right; };
+        if (isLeaf(root))
+            lo = min(lo, depth),
+            hi = max(hi, depth);
+        else
+            go(root->left, depth + 1),
+            go(root->right, depth + 1);
+    };
+    go(tree, 0);
+    return make_pair(lo, hi);
+}
+
+int main() {
+    for (auto& filename: { "problem14.6test1.txt", "problem14.6test2.txt", "problem14.6.txt" }) {
+        auto [lo, hi] = run(filename);
+        cout << filename << ": " << lo << ", " << hi << endl; // min, max encoding length in the corresponding optimal prefix-free tree
+    }
+//    problem14.6test1.txt: 2, 5
+//    problem14.6test2.txt: 3, 6
+//    problem14.6.txt: 9, 19
+    return 0;
+}
+```
+
+---
+
 # Part 4: Algorithms for NP-Hard Problems
 
 <br/>
