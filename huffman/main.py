@@ -8,9 +8,6 @@
 # ...
 #
 
-from heapq import heappush
-from heapq import heappop
-
 class Tree:
     def __init__(self, weight, left = None, right = None):
         self.weight = weight
@@ -19,15 +16,41 @@ class Tree:
     def __lt__(self, other):
         return self.weight < other.weight
 
+#
+# priority queue
+#
+
+# from heapq import heappush
+# from heapq import heappop
+# def encode(A):
+#     T = []
+#     for weight in A:
+#         heappush(T, Tree(weight))
+#     while 1 < len(T):
+#         a, b = heappop(T), heappop(T)
+#         c = Tree(a.weight + b.weight, a, b)
+#         heappush(T, c)
+#     return heappop(T)
+
+#
+# Problem 14.5: Give an implementation of Huffman's greedy algorithm that uses a single invocation
+# of a sorting subroutine, followed by a linear amount of additional work.
+#
+from collections import deque
 def encode(A):
-    T = []
-    for weight in A:
-        heappush(T, Tree(weight))
-    while 1 < len(T):
-        a, b = heappop(T), heappop(T)
+    A.sort()
+    first, second = deque([Tree(weight) for weight in A]), deque()
+    while 1 < len(first) + len(second):
+        next = []
+        while len(next) < 2:
+            if len(first) and len(second):
+                next.append(first.popleft() if first[0].weight < second[0].weight else second.popleft())
+            elif len(first): next.append(first.popleft())
+            elif len(second): next.append(second.popleft())
+        a, b = next
         c = Tree(a.weight + b.weight, a, b)
-        heappush(T, c)
-    return T[0]
+        second.append(c)
+    return second.popleft()
 
 def run(filename):
     A = []

@@ -18,6 +18,7 @@ class Tree {
     }
 }
 
+/*
 let key = x => Array.isArray(x) ? x[0] : x;
 let heappush = (A, x, f = Math.min) => {
     let P = i => Math.floor((i - 1) / 2);  // parent
@@ -63,6 +64,31 @@ let encode = A => {
     }
     return T[0][1];
 };
+*/
+
+/*
+ * Problem 14.5: Give an implementation of Huffman's greedy algorithm that uses a single invocation
+ * of a sorting subroutine, followed by a linear amount of additional work.
+ */
+let encode = A => {
+    A.sort((a, b) => a - b)
+    let first = A.map(weight => new Tree(weight)),
+        second = [];
+    while (1 < first.length + second.length) {
+        let next = [];
+        while (next.length < 2) {
+            if (first.length && second.length) {
+                next.push(first[0].weight < second[0].weight ? first.shift() : second.shift());
+            }
+            else if (first.length) next.push(first.shift());
+            else if (second.length) next.push(second.shift());
+        }
+        let [a, b] = next;
+        let c = new Tree(a.weight + b.weight, a, b);
+        second.push(c);
+    }
+    return second.shift();
+};
 
 let run = filename => {
     let A = [];
@@ -74,7 +100,7 @@ let run = filename => {
         A.push(weight);
     }
     let tree = encode(A);
-    let [ lo, hi ] = [ Infinity, -Infinity ];
+    let [lo, hi] = [Infinity, -Infinity];
     let go = (root = tree, depth = 0) => {
         if (!root)
             return;

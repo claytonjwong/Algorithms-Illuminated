@@ -12,6 +12,12 @@
 #include <fstream>
 #include <vector>
 #include <queue>
+#include <list>
+
+#define PRIORITY_QUEUE    // O(N * logN)
+#ifndef PRIORITY_QUEUE
+#define TWO_QUEUES        // O(N)
+#endif
 
 using namespace std;
 using LL = long long;
@@ -28,23 +34,53 @@ struct Tree {
 };
 using TreePtrs = vector<TreePtr>;
 
+#ifdef PRIORITY_QUEUE
 struct Comp {
     size_t operator()(const TreePtr& a, const TreePtr& b) const {
         return b->weight < a->weight;
     }
 };
 using Queue = priority_queue<TreePtr, TreePtrs, Comp>;
-
 TreePtr encode(const Weights& A, Queue q = {}) {
     for (auto weight: A)
         q.emplace(make_shared<Tree>(weight));
     while (1 < q.size()) {
         auto a = q.top(); q.pop();
         auto b = q.top(); q.pop();
-        q.emplace(make_shared<Tree>(a->weight + b->weight, a, b));
+        auto c = make_shared<Tree>(a->weight + b->weight, a, b);
+        q.emplace(c);
     }
     return q.top();
 }
+#else // TWO_QUEUES
+/*
+ * Problem 14.5: Give an implementation of Huffman's greedy algorithm that uses a single invocation
+ * of a sorting subroutine, followed by a linear amount of additional work.
+ */
+using Queue = queue<TreePtr>;
+TreePtr encode(Weights& A, Queue first = {}, Queue second = {}) {
+    sort(A.begin(), A.end());
+    for (auto weight: A)
+        first.push(make_shared<Tree>(weight));
+    TreePtrs next;
+    auto takeFirst = [&]() { next.push_back(first.front()), first.pop(); };
+    auto takeSecond = [&]() { next.push_back(second.front()), second.pop(); };
+    while (1 < first.size() + second.size()) {
+        next.clear();
+        do {
+            if (first.size() && second.size()) {
+                if (first.front()->weight < second.front()->weight) takeFirst(); else takeSecond();
+            }
+            else if (first.size()) takeFirst();
+            else if (second.size()) takeSecond();
+        } while (next.size() < 2);
+        auto [a, b] = tie(next[0], next[1]);
+        auto c = make_shared<Tree>(a->weight + b->weight, a, b);
+        second.emplace(c);
+    }
+    return second.front();
+}
+#endif
 
 using MinMax = pair<LL, LL>;
 constexpr auto Min = numeric_limits<LL>::min();

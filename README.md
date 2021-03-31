@@ -2510,11 +2510,14 @@ int main() {
 ```kotlin
 import java.io.File
 import java.util.PriorityQueue
+import java.util.Queue
+import java.util.LinkedList
 
 var INF = (1e9 + 7).toInt()
 
 data class Tree(val weight: Int, val left: Tree? = null, val right: Tree? = null)
 
+/*
 fun encode(A: List<Int>): Tree {
     var q = PriorityQueue<Tree>(Comparator{ a: Tree, b: Tree -> a.weight.compareTo(b.weight) })
     for (weight in A)
@@ -2526,6 +2529,32 @@ fun encode(A: List<Int>): Tree {
         q.add(c)
     }
     return q.poll()
+}
+*/
+
+/*
+ * Problem 14.5: Give an implementation of Huffman's greedy algorithm that uses a single invocation
+ * of a sorting subroutine, followed by a linear amount of additional work.
+ */
+fun encode(A: MutableList<Int>): Tree {
+    A.sort()
+    var first: Queue<Tree> = LinkedList<Tree>(A.map{ weight -> Tree(weight) }.toList())
+    var second: Queue<Tree> = LinkedList<Tree>()
+    var next = mutableListOf<Tree>()
+    while (1 < first.size + second.size) {
+        next.clear()
+        do {
+            if (0 < first.size && 0 < second.size) {
+                if (first.peek().weight < second.peek().weight) next.add(first.poll()) else next.add(second.poll())
+            }
+            else if (0 < first.size) next.add(first.poll())
+            else if (0 < second.size) next.add(second.poll())
+        } while (next.size < 2)
+        var (a, b) = next
+        var c = Tree(a.weight + b.weight, a, b)
+        second.add(c)
+    }
+    return second.poll()
 }
 
 fun run(filename: String): Pair<Int, Int> {
@@ -2539,7 +2568,7 @@ fun run(filename: String): Pair<Int, Int> {
             first = false
         }
     }
-    var tree = encode(A.toList())
+    var tree = encode(A.toMutableList())
     var lo = INF
     var hi = -INF
     fun go(root: Tree? = tree, depth: Int = 0) {
@@ -2582,6 +2611,7 @@ class Tree {
     }
 }
 
+/*
 let key = x => Array.isArray(x) ? x[0] : x;
 let heappush = (A, x, f = Math.min) => {
     let P = i => Math.floor((i - 1) / 2);  // parent
@@ -2627,6 +2657,31 @@ let encode = A => {
     }
     return T[0][1];
 };
+*/
+
+/*
+ * Problem 14.5: Give an implementation of Huffman's greedy algorithm that uses a single invocation
+ * of a sorting subroutine, followed by a linear amount of additional work.
+ */
+let encode = A => {
+    A.sort((a, b) => a - b)
+    let first = A.map(weight => new Tree(weight)),
+        second = [];
+    while (1 < first.length + second.length) {
+        let next = [];
+        while (next.length < 2) {
+            if (first.length && second.length) {
+                next.push(first[0].weight < second[0].weight ? first.shift() : second.shift());
+            }
+            else if (first.length) next.push(first.shift());
+            else if (second.length) next.push(second.shift());
+        }
+        let [a, b] = next;
+        let c = new Tree(a.weight + b.weight, a, b);
+        second.push(c);
+    }
+    return second.shift();
+};
 
 let run = filename => {
     let A = [];
@@ -2638,7 +2693,7 @@ let run = filename => {
         A.push(weight);
     }
     let tree = encode(A);
-    let [ lo, hi ] = [ Infinity, -Infinity ];
+    let [lo, hi] = [Infinity, -Infinity];
     let go = (root = tree, depth = 0) => {
         if (!root)
             return;
@@ -2666,9 +2721,6 @@ for (let filename of [ 'problem14.6test1.txt', 'problem14.6test2.txt', 'problem1
 
 *Python3*
 ```python
-from heapq import heappush
-from heapq import heappop
-
 class Tree:
     def __init__(self, weight, left = None, right = None):
         self.weight = weight
@@ -2677,15 +2729,41 @@ class Tree:
     def __lt__(self, other):
         return self.weight < other.weight
 
+#
+# priority queue
+#
+
+# from heapq import heappush
+# from heapq import heappop
+# def encode(A):
+#     T = []
+#     for weight in A:
+#         heappush(T, Tree(weight))
+#     while 1 < len(T):
+#         a, b = heappop(T), heappop(T)
+#         c = Tree(a.weight + b.weight, a, b)
+#         heappush(T, c)
+#     return heappop(T)
+
+#
+# Problem 14.5: Give an implementation of Huffman's greedy algorithm that uses a single invocation
+# of a sorting subroutine, followed by a linear amount of additional work.
+#
+from collections import deque
 def encode(A):
-    T = []
-    for weight in A:
-        heappush(T, Tree(weight))
-    while 1 < len(T):
-        a, b = heappop(T), heappop(T)
+    A.sort()
+    first, second = deque([Tree(weight) for weight in A]), deque()
+    while 1 < len(first) + len(second):
+        next = []
+        while len(next) < 2:
+            if len(first) and len(second):
+                next.append(first.popleft() if first[0].weight < second[0].weight else second.popleft())
+            elif len(first): next.append(first.popleft())
+            elif len(second): next.append(second.popleft())
+        a, b = next
         c = Tree(a.weight + b.weight, a, b)
-        heappush(T, c)
-    return T[0]
+        second.append(c)
+    return second.popleft()
 
 def run(filename):
     A = []
@@ -2728,6 +2806,12 @@ for filename in [ 'problem14.6test1.txt', 'problem14.6test2.txt', 'problem14.6.t
 #include <fstream>
 #include <vector>
 #include <queue>
+#include <list>
+
+#define PRIORITY_QUEUE    // O(N * logN)
+#ifndef PRIORITY_QUEUE
+#define TWO_QUEUES        // O(N)
+#endif
 
 using namespace std;
 using LL = long long;
@@ -2744,23 +2828,53 @@ struct Tree {
 };
 using TreePtrs = vector<TreePtr>;
 
+#ifdef PRIORITY_QUEUE
 struct Comp {
     size_t operator()(const TreePtr& a, const TreePtr& b) const {
         return b->weight < a->weight;
     }
 };
 using Queue = priority_queue<TreePtr, TreePtrs, Comp>;
-
 TreePtr encode(const Weights& A, Queue q = {}) {
     for (auto weight: A)
         q.emplace(make_shared<Tree>(weight));
     while (1 < q.size()) {
         auto a = q.top(); q.pop();
         auto b = q.top(); q.pop();
-        q.emplace(make_shared<Tree>(a->weight + b->weight, a, b));
+        auto c = make_shared<Tree>(a->weight + b->weight, a, b);
+        q.emplace(c);
     }
     return q.top();
 }
+#else // TWO_QUEUES
+/*
+ * Problem 14.5: Give an implementation of Huffman's greedy algorithm that uses a single invocation
+ * of a sorting subroutine, followed by a linear amount of additional work.
+ */
+using Queue = queue<TreePtr>;
+TreePtr encode(Weights& A, Queue first = {}, Queue second = {}) {
+    sort(A.begin(), A.end());
+    for (auto weight: A)
+        first.push(make_shared<Tree>(weight));
+    TreePtrs next;
+    auto takeFirst = [&]() { next.push_back(first.front()), first.pop(); };
+    auto takeSecond = [&]() { next.push_back(second.front()), second.pop(); };
+    while (1 < first.size() + second.size()) {
+        next.clear();
+        do {
+            if (first.size() && second.size()) {
+                if (first.front()->weight < second.front()->weight) takeFirst(); else takeSecond();
+            }
+            else if (first.size()) takeFirst();
+            else if (second.size()) takeSecond();
+        } while (next.size() < 2);
+        auto [a, b] = tie(next[0], next[1]);
+        auto c = make_shared<Tree>(a->weight + b->weight, a, b);
+        second.emplace(c);
+    }
+    return second.front();
+}
+#endif
 
 using MinMax = pair<LL, LL>;
 constexpr auto Min = numeric_limits<LL>::min();
