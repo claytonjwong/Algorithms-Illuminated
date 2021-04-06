@@ -2915,6 +2915,263 @@ int main() {
 }
 ```
 
+</details>
+
+---
+
+### Prim's MST
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Minimum Spanning Trees: Problem Definition (Section 15.1)](https://www.youtube.com/watch?v=tDj9BkaQDO8&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=10)
+* [Prim's MST Algorithm (Section 15.2)](https://www.youtube.com/watch?v=jsvOPssDVJA&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=11)
+* [Speeding Up Prim's Algorithm via Heaps (Part 1) (Section 15.3, Part 1)](https://www.youtube.com/watch?v=cDtQnXMZGtg&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=15)
+* [Speeding Up Prim's Algorithm via Heaps (Part 2) (Section 15.3, Part 2)](https://www.youtube.com/watch?v=jGR_LAwGLGk&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=16)
+* [Prim's Algorithm: Correctness Proof (Part 1) (Section 15.4, Part 1) [Note: this video provides an alternative treatment to that in the book.]](https://www.youtube.com/watch?v=pGUzn3S7bp4&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=12)
+* [Prim's Algorithm: Correctness Proof (Part 2) (Section 15.4, Part 2) [Note: this video provides an alternative treatment to that in the book.]](https://www.youtube.com/watch?v=199ItGt4mE8&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=13)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+import java.util.PriorityQueue
+import java.util.Random
+
+fun prim(N: Int, adj: MutableMap<Int, MutableList<Pair<Int, Int>>>): Int {
+    var total: Int = 0
+    var start = Random().nextInt(N) + 1
+    var q = PriorityQueue<Pair<Int, Int>>(Comparator{ a: Pair<Int, Int>, b: Pair<Int, Int> -> a.first.compareTo(b.first) })
+    var seen = mutableSetOf<Int>(start)
+    for ((w, v) in adj[start]!!)
+        q.add(Pair(w, v))
+    while (0 < q.size) {
+        var (cost, u) = q.poll()
+        if (seen.contains(u))
+            continue
+        total += cost; seen.add(u)
+        for ((w, v) in adj[u]!!)
+            if (!seen.contains(v))
+                q.add(Pair(w, v))
+    }
+    return total
+}
+
+fun run(filename: String) {
+    var N: Int = 0
+    var adj = mutableMapOf<Int, MutableList<Pair<Int, Int>>>()
+    var first = true
+    File(filename).forEachLine { line ->
+        if (!first) {
+            var (u, v, w) = line.split(" ").map{ it.toInt() }
+            if (!adj.contains(u)) adj[u] = mutableListOf<Pair<Int, Int>>()
+            if (!adj.contains(v)) adj[v] = mutableListOf<Pair<Int, Int>>()
+            adj[u]!!.add(Pair(w, v))
+            adj[v]!!.add(Pair(w, u))
+        } else {
+            var (numVertex, _) = line.split(" ").map{ it.toInt() }
+            N = numVertex
+            first = false
+        }
+    }
+    var cost = prim(N, adj)
+    println("$filename: $cost")
+}
+
+fun main() {
+    run("problem15.9test.txt") // problem15.9test.txt: 14
+    run("problem15.9.txt")     // problem15.9.txt: -3612829
+}
+```
+
+*Javascript*
+```javascript
+let LineByLine = require('n-readlines');
+
+let key = x => Array.isArray(x) ? x[0] : x;
+let heappush = (A, x, f = Math.min) => {
+    let P = i => Math.floor((i - 1) / 2);  // parent
+    A.push(x);
+    let N = A.length,
+        i = N - 1;
+    while (0 < i && key(A[i]) == f(key(A[i]), key(A[P(i)]))) {
+        [A[i], A[P(i)]] = [A[P(i)], A[i]];
+        i = P(i);
+    }
+};
+let heappop = (A, f = Math.min) => {
+    let L = i => 2 * i + 1,  // children
+        R = i => 2 * i + 2;
+    let N = A.length,
+        i = 0;
+    let top = A[0];
+    [A[0], A[N - 1]] = [A[N - 1], A[0]], A.pop(), --N;
+    let ok;
+    do {
+        ok = true;
+        let left = f == Math.min ? Infinity : -Infinity,
+            right = left;
+        if (L(i) < N && key(A[i]) != f(key(A[i]), key(A[L(i)]))) ok = false, left  = key(A[L(i)]);
+        if (R(i) < N && key(A[i]) != f(key(A[i]), key(A[R(i)]))) ok = false, right = key(A[R(i)]);
+        if (!ok) {
+            let j = left == f(left, right) ? L(i) : R(i);
+            [A[i], A[j]] = [A[j], A[i]];
+            i = j;
+        }
+    } while (!ok);
+    return top;
+};
+
+let prim = (N, adj, q = [], seen = new Set(), total = 0) => {
+    let start = Math.ceil(N * Math.random());
+    seen.add(start);
+    for (let [w, v] of adj.get(start))
+        heappush(q, [w, v]);
+    while (q.length) {
+        let [cost, u] = heappop(q);
+        if (seen.has(u))
+            continue;
+        total += cost; seen.add(u);
+        for (let [w, v] of adj.get(u))
+            if (!seen.has(v))
+                heappush(q, [w, v]);
+    }
+    return total;
+};
+
+let run = filename => {
+    let adj = new Map();
+    let input = new LineByLine(filename);
+    let line = input.next();
+    let [N, M] = String.fromCharCode(...line).trim().split(' ').map(Number);
+    while (line = input.next()) {
+        let [u, v, w] = String.fromCharCode(...line).trim().split(' ').map(Number);
+        if (!adj.has(u)) adj.set(u, []);
+        if (!adj.has(v)) adj.set(v, []);
+        adj.get(u).push([w, v]);
+        adj.get(v).push([w, u]);
+    }
+    let cost = prim(N, adj);
+    console.log(`${filename}: ${cost}`);
+}
+
+run('problem15.9test.txt') // problem15.9test.txt: 14
+run('problem15.9.txt')     // problem15.9.txt: -3612829
+```
+
+*Python3*
+```python
+from random import randint
+from heapq import heappush, heappop
+
+def prim(N, adj, total = 0):
+    q = []
+    seen = set()
+    start = randint(1, N); seen.add(start)
+    for w, v in adj[start]:
+        heappush(q, [w, v])
+    while q:
+        cost, u = heappop(q)
+        if u in seen:
+            continue
+        total += cost; seen.add(u)
+        for w, v in adj[u]:
+            if v not in seen:
+                heappush(q, [w, v])
+    return total
+
+def run(filename):
+    adj = {}
+    first = True
+    with open(filename) as fin:
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            words = line.split()
+            if not first:
+                u, v, w = [int(x) for x in words]
+                if u not in adj: adj[u] = []
+                if v not in adj: adj[v] = []
+                adj[u].append([w, v])
+                adj[v].append([w, u])
+            else:
+                N, M = [int(x) for x in words]
+                first = False
+    cost = prim(N, adj)
+    print(f'{filename}: {cost}')
+
+run('problem15.9test.txt') # problem15.9test.txt: 14
+run('problem15.9.txt')     # problem15.9.txt: -3612829
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <unordered_set>
+#include <unordered_map>
+#include <queue>
+#include <random>
+
+using namespace std;
+using Pair = pair<int, int>;
+using Pairs = vector<Pair>;
+using AdjList = unordered_map<int, Pairs>;
+using Queue = priority_queue<Pair, Pairs, std::greater<Pair>>;
+using Set = unordered_set<int>;
+
+constexpr auto INF = int(1e9 + 7);
+
+int getRandom(int N) {
+    default_random_engine generator;
+    uniform_int_distribution<int> distribution(1, N);
+    return distribution(generator);
+}
+
+int prim(int N, AdjList& adj, Queue q = {}, Set seen = {}, int total = 0) {
+    auto start = getRandom(N);
+    seen.insert(start);
+    for (auto [w, v]: adj[start])
+        q.push({ w, v });
+    while (q.size()) {
+        auto [cost, u] = q.top(); q.pop();
+        if (!seen.insert(u).second)
+            continue;
+        total += cost;
+        for (auto [w, v]: adj[u])
+            if (seen.find(v) == seen.end())
+                q.push({ w, v });
+    }
+    return total;
+}
+
+void run(const string& filename) {
+    AdjList adj;
+    fstream fin{ filename };
+    int N, M; fin >> N >> M; // N vertices and M edges
+    int u, v, w;             // edge u -> v of weight w
+    while (fin >> u >> v >> w) {
+        adj[u].emplace_back(w, v);
+        adj[v].emplace_back(w, u);
+    }
+    auto cost = prim(N, adj);
+    cout << filename << ": " << cost << endl;
+}
+
+int main() {
+    run("problem15.9test.txt"); // problem15.9test.txt: 14
+    run("problem15.9.txt");     // problem15.9.txt: -3612829
+    return 0;
+}
+```
+
+</details>
+
 ---
 
 # Part 4: Algorithms for NP-Hard Problems
@@ -2924,4 +3181,4 @@ int main() {
     <img src="images/ai4large.jpg" />
 </a>
 
-</details>
+
