@@ -3174,6 +3174,220 @@ int main() {
 
 ---
 
+### Kruskal's MST
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Minimum Spanning Trees: Problem Definition (Section 15.1)](https://www.youtube.com/watch?v=tDj9BkaQDO8&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=10)
+* [Kruskal's MST Algorithm (Section 15.5)](https://www.youtube.com/watch?v=SZuCspj5AJc&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=17)
+* [Speeding Up Kruskal's Algorithm via Union-Find (Part 1) (Section 15.6, Part 1)](https://www.youtube.com/watch?v=fItEZEVyJKE&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=19)
+* [Speeding Up Kruskal's Algorithm via Union-Find (Part 2) (Section 15.6, Part 2) [Note: this video provides an alternative treatment to that in the book.]](https://www.youtube.com/watch?v=jY-vY6d18W4&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=20)
+* [Lazy Unions (Section 15.6, Part 3) [Note: this video is closer to the union-find implementation in the book.]](https://www.youtube.com/watch?v=bRwTSPIEI9k&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=24)
+* [Kruskal's Algorithm: Correctness Proof (Section 15.7) [Note: this video provides an alternative treatment to that in the book.]](https://www.youtube.com/watch?v=AjLjL0Rp10g&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=18)
+* [Application: Single-Link Clustering (Section 15.8)](https://www.youtube.com/watch?v=MSSzOs1X4K8&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=22)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+fun kruskal(E: MutableList<Triple<Int, Int, Int>>): Int {
+    var total: Int = 0
+    var M = E.size
+    var P = IntArray(M) { it } // 🙂 parent representatives of 1..M disjoint sets
+    fun find(x: Int): Int {
+        P[x] = if (P[x] == x) x else find(P[x])
+        return P[x]
+    }
+    fun union(a: Int, b: Int): Boolean {
+        var x = find(a)
+        var y = find(b)
+        if (x == y)
+            return false
+        P[x] = y // 🎲 arbitrary choice
+        return true
+    }
+    E.sortWith(Comparator{ a, b -> a.third.compareTo(b.third) }) // sort edges by nondecreasing weight
+    for ((u, v, w) in E)
+        if (union(u, v))
+            total += w
+    return total
+}
+
+fun run(filename: String) {
+    var E = mutableListOf<Triple<Int, Int, Int>>()
+    var first = true
+    File(filename).forEachLine { line ->
+        if (!first) {
+            var (u, v, w) = line.trim().split(" ").map{ it.toInt() }
+            E.add(Triple(u, v, w))
+        } else {
+            first = false // ignore first line with N vertices and M edges
+        }
+    }
+    var cost = kruskal(E)
+    println("$filename: $cost")
+}
+
+fun main() {
+    run("problem15.9test.txt") // problem15.9test.txt: 14
+    run("problem15.9.txt")     // problem15.9.txt: -3612829
+}
+```
+
+*Javascipt*
+```javascript
+let LineByLine = require('n-readlines');
+
+let kruskal = E => {
+    let total = 0;
+    let M = E.length;
+    let P = [...Array(M).keys()]; // 🙂 parent representatives of 1..M disjoint sets
+    let find = x => P[x] = P[x] == x ? x : find(P[x]);
+    let union = (a, b) => {
+        a = find(a);
+        b = find(b);
+        if (a == b)
+            return false;
+        P[a] = b; // 🎲 arbitrary choice
+        return true;
+    };
+    E.sort((first, second) => { // sort edges by nondecreasing weight
+        let [u1, v1, w1] = first,
+            [u2, v2, w2] = second;
+        return w1 - w2;
+    });
+    for (let [u, v, w] of E)
+        if (union(u, v))
+            total += w;
+    return total;
+};
+
+let run = filename => {
+    let E = [];
+    let input = new LineByLine(filename);
+    let line = input.next(); // ignore first line with N vertices and M edges
+    while (line = input.next()) {
+        let [u, v, w] = String.fromCharCode(...line).trim().split(' ').map(Number);
+        E.push([ u, v, w ]);
+    }
+    let cost = kruskal(E);
+    console.log(`${filename}: ${cost}`);
+};
+
+run('problem15.9test.txt'); // problem15.9test.txt: 14
+run('problem15.9.txt');     // problem15.9.txt: -3612829
+```
+
+*Python3*
+```python
+from functools import cmp_to_key
+
+def kruskal(E, total = 0):
+    M = len(E)
+    P = [i for i in range(M)] # 🙂 parent representatives of 1..M disjoint sets
+    def find(x):
+        P[x] = P[x] if P[x] == x else find(P[x])
+        return P[x]
+    def union(a, b):
+        a = find(a)
+        b = find(b)
+        if a == b:
+            return False
+        P[a] = b # 🎲 arbitary choice
+        return True
+    E.sort(key = cmp_to_key(lambda first, second: first[2] - second[2])) # sort edges by nondecreasing weight
+    for u, v, w in E:
+        if union(u, v):
+            total += w
+    return total
+
+def run(filename):
+    E = []
+    first = True
+    with open(filename) as fin:
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            values = [int(x) for x in line.strip().split()]
+            if not first:
+                u, v, w = values # edge u -> v of weight w
+                E.append([ u, v, w ])
+            else:
+                first = False # ignore first line with N vertices and M edges
+    cost = kruskal(E)
+    print(f'{filename}: {cost}')
+
+run('problem15.9test.txt') # problem15.9test.txt: 14
+run('problem15.9.txt')     # problem15.9.txt: -3612829
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <unordered_map>
+#include <numeric>
+
+using namespace std;
+using Edge = tuple<int, int, int>;
+using Edges = vector<Edge>;
+using Parents = vector<int>;
+using fun = function<int(int)>;
+
+int kruskal(Edges& E, int total = 0) {
+    auto M = E.size();
+    Parents P(M); iota(P.begin(), P.end(), 0); // 🙂 parent representatives of 1..M disjoint sets 
+    fun find = [&](auto x) {
+         return P[x] = P[x] == x ? x : find(P[x]);
+    };
+    auto join = [&](auto a, auto b) {
+        a = find(a);
+        b = find(b);
+        if (a == b)
+            return false;
+        P[a] = b; // 🎲 arbitrary choice
+        return true;
+    };
+    sort(E.begin(), E.end(), [](auto& first, auto& second) { // sort edges by nondecreasing weight
+        auto [u1, v1, w1] = first;
+        auto [u2, v2, w2] = second;
+        return w1 < w2;
+    });
+    for (auto [u, v, w]: E)
+        if (join(u, v))
+            total += w;
+    return total;
+}
+
+void run(const string& filename, Edges E = {}) {
+    fstream fin{ filename };
+    int N, M; fin >> N >> M; // ignore first line with N vertices and M edges
+    int u, v, w;             // edge u -> v of weight w
+    while (fin >> u >> v >> w)
+        E.emplace_back(u, v, w);
+    auto cost = kruskal(E);
+    cout << filename << ": " << cost << endl;
+}
+
+int main() {
+    run("problem15.9test.txt"); // problem15.9test.txt: 14
+    run("problem15.9.txt");     // problem15.9.txt: -3612829
+    return 0;
+}
+```
+
+</details>
+
+---
+
 # Part 4: Algorithms for NP-Hard Problems
 
 <br/>
