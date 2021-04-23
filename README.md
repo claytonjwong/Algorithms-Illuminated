@@ -3388,6 +3388,250 @@ int main() {
 
 ---
 
+### Weighted Independent Set
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [The Weighted Independent Set Problem (Section 16.1)](https://www.youtube.com/watch?v=0awkct8SkxA&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=39)
+* [A Linear-Time Algorithm for WIS in Path Graphs (Part 1) (Section 16.2, Part 1)](https://www.youtube.com/watch?v=pLOkbHGRsv0&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=40)
+* [A Linear-Time Algorithm for WIS in Path Graphs (Part 2) (Section 16.2, Part 2)](https://www.youtube.com/watch?v=Im_zjFkZDCY&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=41)
+* [A Reconstruction Algorithm (Section 16.3)](https://www.youtube.com/watch?v=W2ncNfksRqo&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=42)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+fun topDown(A: MutableList<Long>): Long {
+    var N = A.size
+    var m = mutableMapOf<Int, Long>()
+    fun go(i: Int = N - 1): Long {
+        if (m.contains(i))                    // 🤔 memo
+            return m[i]!!
+        if (i < 0) {                          // 🛑 empty set
+            m[i] = 0
+            return 0
+        }
+        if (i == 0) {                         // 🛑 single set
+            m[i] = A[0]
+            return A[0]
+        }
+        var include = go(i - 2) + A[i]        // ✅ include A[i]
+        var exclude = go(i - 1)               // 🚫 exclude A[i]
+        m[i] = Math.max(include, exclude)     // 🎯 best
+        return m[i]!!
+    }
+    return go()
+}
+
+fun bottomUp(A: MutableList<Long>): Long {
+    var N = A.size
+    var dp = LongArray(N + 1)                 // 🤔 memo
+    dp[0] = 0                                 // 🛑 empty set
+    dp[1] = A[0]                              // 🛑 single set
+    for (i in 2..N) {
+        var include = dp[i - 2] + A[i - 1]    // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+        var exclude = dp[i - 1]               // 🚫 exclude A[i]
+        dp[i] = Math.max(include, exclude)    // 🎯 best
+    }
+    return dp[N]
+}
+
+fun run(filename: String) {
+    var A = mutableListOf<Long>()
+    var first = true
+    File(filename).forEachLine { line ->
+        if (!first) {
+            A.add(line.toLong())
+        } else {
+            first = false
+        }
+    }
+    var a = topDown(A)
+    var b = bottomUp(A)
+    assert(a == b) // 💩 sanity check
+    println("$filename: $a")
+}
+
+fun main() {
+    run("problem16.6test.txt")  // problem16.6test.txt: 2617
+    run("problem16.6.txt")      // problem16.6.txt: 2955353732
+}
+```
+
+*Javascript*
+```javascript
+const assert = require('assert');
+const LineByLine = require('n-readlines');
+
+let top_down = (A, m = {}) => {
+    let N = A.length;
+    let go = (i = N - 1) => {
+        if (m[i])                                     // 🤔 memo
+            return m[i];
+        if (i < 0) return m[i] = 0;                   // 🛑 empty set
+        if (!i) return m[i] = A[0];                   // 🛑 single set
+        let include = go(i - 2) + A[i],               // ✅ include A[i]
+            exclude = go(i - 1);                      // 🚫 exclude A[i]
+        return m[i] = Math.max(include, exclude);     // 🎯 best
+    };
+    return go();
+};
+
+let bottom_up = A => {
+    let N = A.length;
+    let dp = Array(N + 1);                    // 🤔 memo
+    dp[0] = 0;                                // 🛑 empty set
+    dp[1] = A[0];                             // 🛑 single set
+    for (let i = 2; i <= N; ++i) {
+        let include = dp[i - 2] + A[i - 1],   // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+            exclude = dp[i - 1];              // 🚫 exclude A[i]
+        dp[i] = Math.max(include, exclude);   // 🎯 best
+    }
+    return dp[N];
+};
+
+let run = filename => {
+    let A = [];
+    let input = new LineByLine(filename);
+    let line;
+    let first = true;
+    while (line = input.next()) {
+        if (!first) {
+            A.push(Number(line.toString('ascii')));
+        } else {
+            first = false;
+        }
+    }
+    let a = top_down(A),
+        b = bottom_up(A);
+    assert(a == b); // 💩 sanity check
+    console.log(`${filename}: ${a}`);
+};
+
+run('problem16.6test.txt');  // problem16.6test.txt: 2617
+run('problem16.6.txt');      // problem16.6.txt: 2955353732
+```
+
+*Python3*
+```python
+from functools import lru_cache
+
+def top_down(A):
+    N = len(A)
+    @lru_cache                        # 🤔 memo
+    def go(i = N - 1):
+        if i < 0: return 0            # 🛑 empty set
+        if i == 0: return A[0]        # 🛑 single set
+        include = go(i - 2) + A[i]    # ✅ include A[i]
+        exclude = go(i - 1)           # 🚫 exclude A[i]
+        return max(include, exclude)  # 🎯 best
+    return go()
+
+def bottom_up(A):
+    N = len(A)
+    dp = [0] * (N + 1)                  # 🤔 memo
+    dp[0] = 0                           # 🛑 empty set
+    dp[1] = A[0]                        # 🛑 single set
+    for i in range(2, N + 1):
+        include = dp[i - 2] + A[i - 1]  # ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+        exclude = dp[i - 1]             # 🚫 exclude A[i]
+        dp[i] = max(include, exclude)   # 🎯 best
+    return dp[N]
+
+def run(filename):
+    A = []
+    with open(filename) as fin:
+        first = True
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            x = int(line)
+            if not first:
+                A.append(x)
+            else:
+                first = False
+                N = x
+    a = top_down(A)
+    b = bottom_up(A)
+    assert(a == b)             # 💩 sanity check
+    print(f'{filename}: {a}')
+
+run('problem16.6test.txt')     # problem16.6test.txt: 2617
+run('problem16.6.txt')         # problem16.6.txt: 2955353732
+```
+
+*C++*
+```cpp
+#include <cassert>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+using LL = long long;
+using List = vector<LL>;
+using Map = unordered_map<int, LL>;
+
+namespace TopDown {
+    LL best(List& A, Map m = {}) {
+        int N = A.size();
+        using fun = function<LL(int)>;
+        fun go = [&](auto i) {
+            if (m[i]) return m[i];                // 🤔 memo
+            if (i < 0) return m[i] = 0LL;         // 🛑 empty set
+            if (!i) return m[i] = A[0];           // 🛑 single set
+            auto include = go(i - 2) + A[i],      // ✅ include A[i]
+                 exclude = go(i - 1);             // 🚫 exclude A[i]
+            return m[i] = max(include, exclude);  // 🎯 best
+        };
+        return go(N - 1);
+    }
+}
+namespace BottomUp {
+    LL best(List& A, Map m = {}) {
+        int N = A.size();
+        List dp(N + 1);                           // 🤔 memo
+        dp[0] = 0LL;                              // 🛑 empty set
+        dp[1] = A[0];                             // 🛑 single set
+        for (auto i{ 2 }; i <= N; ++i) {
+            auto include = dp[i - 2] + A[i - 1],  // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+                 exclude = dp[i - 1];             // 🚫 exclude A[i]
+            dp[i] = max(include, exclude);        // 🎯 best
+        }
+        return dp[N];
+    }
+}
+
+void run(const string& filename) {
+    List A;
+    fstream fin{ filename };
+    int N; fin >> N;
+    copy_n(istream_iterator<LL>(fin), N, back_inserter(A));
+    auto a = TopDown::best(A),
+         b = BottomUp::best(A);
+    assert(a == b); // 💩 sanity check
+    cout << filename << ": " << a << endl;
+}
+
+int main() {
+    run("problem16.6test.txt");  // problem16.6test.txt: 2617
+    run("problem16.6.txt");      // problem16.6.txt: 2955353732
+    return 0;
+}
+```
+
+</details>
+
+---
+
 # Part 4: Algorithms for NP-Hard Problems
 
 <br/>
