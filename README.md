@@ -20,7 +20,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 
 ---
 
-## Merge Sort
+### Merge Sort
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -173,7 +173,7 @@ int main() {
 
 ---
 
-## Counting Inversions
+### Counting Inversions
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -382,7 +382,7 @@ int main() {
 
 ---
 
-## Quick Sort
+### Quick Sort
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -623,7 +623,7 @@ int main() {
 
 ---
 
-## Randomized Linear-Time Selection
+### Randomized Linear-Time Selection
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -839,7 +839,7 @@ int main() {
 
 ---
 
-## Topological Sort
+### Topological Sort
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -1231,7 +1231,7 @@ int main() {
 
 ---
 
-## Kosaraju Strongly Connected Components
+### Kosaraju
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -1766,7 +1766,7 @@ int main() {
 
 ---
 
-## Dijkstra
+### Dijkstra
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -2251,7 +2251,7 @@ int main() {
     <img src="images/ai3large.jpg" />
 </a>
 
-## Greedy Scheduling
+### Greedy Scheduling
 
 <details><summary>📚 Lectures</summary>
 <br/>
@@ -2489,7 +2489,7 @@ int main() {
 
 ---
 
-## Huffman Codes
+### Huffman Codes
 
 <details><summary>📚 Lectures</summary>
 <br/>
