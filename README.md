@@ -2251,6 +2251,8 @@ int main() {
     <img src="images/ai3large.jpg" />
 </a>
 
+---
+
 ### Greedy Scheduling
 
 <details><summary>📚 Lectures</summary>
