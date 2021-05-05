@@ -3632,6 +3632,261 @@ int main() {
 
 ---
 
+### Knapsack
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Principles of Dynamic Programming (Section 16.4)](https://www.youtube.com/watch?v=27nK8C-GCPM&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=43)
+* [The Knapsack Problem (Part 1) (Section 16.5, Part 1)](https://www.youtube.com/watch?v=jlHIBaUizOU&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=44)
+* [The Knapsack Problem (Part 2) (Section 16.5, Part 2)](https://www.youtube.com/watch?v=KX_6OF8X6HQ&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=45)
+* [The Knapsack Problem (Part 3) (Section 16.5, Part 3)](https://www.youtube.com/watch?v=1dRUOZKcvYs&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=46)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+var INF = (1e9 + 7).toInt()
+
+fun top_down(A: List<Pair<Int, Int>>, K: Int): Int {
+    var N = A.size
+    var m = mutableMapOf<String, Int>()
+    fun go(i: Int = 0, k: Int = K): Int {
+        if (i == N)                                                                 // 🛑 empty set
+            return 0
+        var key = "$i,$k"
+        if (m.contains(key))                                                        // 🤔 memo
+            return m[key]!!
+        var (value, weight) = A[i]
+        var include = if (0 <= k - weight) go(i + 1, k - weight) + value else -INF  // ✅ include A[i]
+        var exclude = go(i + 1, k)                                                  // 🚫 exclude A[i]
+        m[key] = Math.max(include, exclude)                                         // 🎯 best
+        return m[key]!!
+    }
+    return go()
+}
+
+fun bottom_up(A: List<Pair<Int, Int>>, K: Int): Int {
+    var N = A.size
+    var dp = Array(N + 1){ Array(K + 1){ -INF } }                                       // 🤔 memo
+    for (k in 0..K)                                                                     // 🛑 empty set
+        dp[0][k] = 0
+    for (i in 1..N) {
+        for (k in 0..K) {
+            var (value, weight) = A[i - 1]
+            var include = if (0 <= k - weight) dp[i - 1][k - weight] + value else -INF  // ✅ include A[i]
+            var exclude = dp[i - 1][k]                                                  // 🚫 exclude A[i]
+            dp[i][k] = Math.max(include, exclude)                                       // 🎯 best
+        }
+    }
+    return dp[N][K]
+}
+
+fun run(filename: String) {
+    var A = mutableListOf<Pair<Int, Int>>()
+    var K = 0
+    var N = 0
+    var first = true
+    File(filename).forEachLine { line ->
+        if (!first) {
+            var (value, weight) = line.trim().split(" ").map{ it -> it.toInt() }
+            A.add(Pair(value, weight))
+        } else {
+            var (a, b) = line.trim().split(" ").map{ it -> it.toInt() }
+            K = a
+            N = b
+            first = false
+        }
+    }
+    var a = top_down(A, K)
+    var b = bottom_up(A, K)
+    assert(a == b) // 💩 sanity check
+    println("$filename: $a")
+}
+
+fun main() {
+    run("problem16.7test.txt")  // problem16.7test.txt: 2493893
+}
+```
+
+*Javascript*
+```javascript
+const assert = require('assert');
+const LineByLine = require('n-readlines');
+
+let top_down = (A, K, m = new Map()) => {
+    let N = A.length;
+    let go = (i = 0, k = K) => {
+        if (i == N)                                                                 // 🛑 empty set
+            return 0;
+        let key = `${i},${k}`;
+        if (m.has(key))                                                             // 🤔 memo
+            return m.get(key);
+        let [value, weight] = A[i];
+        let include = 0 <= k - weight ? go(i + 1, k - weight) + value : -Infinity,  // ✅ include A[i]
+            exclude = go(i + 1, k);                                                 // 🚫 exclude A[i]
+        return m.set(key, Math.max(include, exclude))                               // 🎯 best
+                .get(key);
+    };
+    return go();
+};
+
+let bottom_up = (A, K) => {
+    let N = A.length;
+    let dp = [...Array(N + 1)].map(_ => Array(K + 1).fill(-Infinity));                  // 🤔 memo
+    for (let k = 0; k < K; dp[0][k++] = 0);                                             // 🛑 empty set
+    for (let i = 1; i <= N; ++i) {
+        for (let k = 0; k <= K; ++k) {
+            let [value, weight] = A[i - 1];
+            let include = 0 <= k - weight ? dp[i - 1][k - weight] + value : -Infinity,  // ✅ include A[i]
+                exclude = dp[i - 1][k];                                                 // 🚫 exclude A[i]
+            dp[i][k] = Math.max(include, exclude);                                      // 🎯 best
+        }
+    }
+    return dp[N][K];
+};
+
+let run = filename => {
+    let A = [];
+    const input = new LineByLine(filename)
+    let [K, N] = input.next().toString().split(' ').map(Number);  // K capacity, N items
+    let line;
+    while (line = input.next()) {
+        let [value, weight] = line.toString().split(' ').map(Number);
+        A.push([value, weight]);
+    }
+    let a = top_down(A, K),
+        b = bottom_up(A, K);
+    assert(a == b); // 💩 sanity check
+    console.log(`${filename}: ${a}`);
+};
+
+run('problem16.7test.txt')  // problem16.7test.txt: 2493893
+```
+
+*Python3*
+```python
+from functools import lru_cache
+
+def top_down(A, K):
+    N = len(A)
+    total = [0] * N
+    @lru_cache(maxsize = None)                                                          # 🤔 memo
+    def go(i = 0, k = K):
+        if i == N:                                                                      # 🛑 empty set
+            return 0
+        value, weight = A[i]
+        include = go(i + 1, k - weight) + value if 0 <= k - weight else float('-inf')  # ✅ include A[i]
+        exclude = go(i + 1, k)                                                         # 🚫 exclude A[i]
+        return max(include, exclude)                                                   # 🎯 best
+    return go()
+
+def bottom_up(A, K):
+    N = len(A)
+    dp = [[float('-inf')] * (K + 1) for _ in range(N + 1)]                                 # 🤔 memo
+    for j in range(K):                                                                     # 🛑 empty set
+        dp[0][j] = 0
+    for i in range(1, N + 1):
+        for k in range(1, K + 1):
+            value, weight = A[i - 1]
+            include = dp[i - 1][k - weight] + value if 0 <= k - weight else float('-inf')  # ✅ include A[i]
+            exclude = dp[i - 1][k]                                                         # 🚫 exclude A[i]
+            dp[i][k] = max(include, exclude)                                               # 🎯 best
+    return dp[N][K]
+
+def run(filename):
+    A = []
+    with open(filename) as fin:
+        line = fin.readline()
+        [K, N] = [int(word) for word in line.split()]  # K capacity, N items
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            value, weight = [int(word) for word in line.split()]
+            A.append([value, weight])
+    a = top_down(A, K)
+    b = bottom_up(A, K)
+    assert(a == b)
+    print(f'{filename}: {a}')
+
+run('problem16.7test.txt')  # problem16.7test.txt: 2493893
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+using Pair = pair<int, int>;  // value, weight
+using Pairs = vector<Pair>;
+using fun = function<int(int, int)>;
+using Map = unordered_map<string, int>;
+
+int INF = 1e9 + 7;
+
+int top_down(Pairs& A, int K, Map m = {}) {
+    auto N = A.size();
+    fun go = [&](auto i, auto k) {
+        if (i == N)                                                             // 🛑 empty set
+            return 0;
+        stringstream key; key << i << "," << k;
+        if (m.find(key.str()) != m.end())                                       // 🤔 memo
+            return m[key.str()];
+        auto [value, weight] = A[i];
+        auto include = 0 <= k - weight ? go(i + 1, k - weight) + value : -INF,  // ✅ include A[i]
+             exclude = go(i + 1, k);                                            // 🚫 exclude A[i]
+        return m[key.str()] = max(include, exclude);                            // 🎯 best
+    };
+    return go(0, K);
+}
+
+int bottom_up(Pairs& A, int K) {
+    auto N = A.size();
+    using VI = vector<int>;
+    using VVI = vector<VI>;
+    VVI dp(N + 1, VI(K + 1, -INF));                                                // 🤔 memo
+    for (auto k{ 0 }; k < K; dp[0][k++] = 0);                                      // 🛑 empty set
+    for (auto i{ 1 }; i <= N; ++i) {
+        for (auto k{ 0 }; k <= K; ++k) {
+            auto [value, weight] = A[i - 1];
+            auto include = 0 <= k - weight ? dp[i - 1][k - weight] +value : -INF,  // ✅ include A[i]
+                 exclude = dp[i - 1][k];                                           // 🚫 exclude A[i]
+            dp[i][k] = max(include, exclude);                                      // 🎯 best
+        }
+    }
+    return dp[N][K];
+}
+
+void run(const string& filename) {
+    Pairs A;
+    fstream fin{ filename };
+    int K, N;                // K capacity, N items
+    fin >> K >> N;
+    for (int value, weight; fin >> value >> weight; A.emplace_back(value, weight));
+    auto a = top_down(A, K),
+         b = bottom_up(A, K);
+    assert(a == b);
+    cout << filename << ": " << a << endl;
+}
+
+int main() {
+    run("problem16.7test.txt");  // problem16.7test.txt: 2493893
+    return 0;
+}
+```
+
+</details>
+
 # Part 4: Algorithms for NP-Hard Problems
 
 <br/>
