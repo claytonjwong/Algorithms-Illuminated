@@ -3689,6 +3689,22 @@ fun bottom_up(A: List<Pair<Int, Int>>, K: Int): Int {
     return dp[N][K]
 }
 
+fun bottom_up_memopt(A: List<Pair<Int, Int>>, K: Int): Int {
+    var N = A.size
+    var pre = Array(K + 1) { 0 }                                                  // 🤔 memo + 🛑 empty set
+    for (i in 1..N) {
+        var cur = Array(K + 1) { -INF }
+        for (k in 0..K) {
+            var (value, weight) = A[i - 1]
+            var include = if (0 <= k - weight) pre[k - weight] + value else -INF  // ✅ include A[i]
+            var exclude = pre[k]                                                  // 🚫 exclude A[i]
+            cur[k] = Math.max(include, exclude)                                   // 🎯 best
+        }
+        pre = cur.also { cur = pre }
+    }
+    return pre[K]
+}
+
 fun run(filename: String) {
     var A = mutableListOf<Pair<Int, Int>>()
     var K = 0
@@ -3707,7 +3723,8 @@ fun run(filename: String) {
     }
     var a = top_down(A, K)
     var b = bottom_up(A, K)
-    assert(a == b) // 💩 sanity check
+    var c = bottom_up_memopt(A, K)
+    assert(a == b && b == c) // 💩 sanity check
     println("$filename: $a")
 }
 
@@ -3753,6 +3770,22 @@ let bottom_up = (A, K) => {
     return dp[N][K];
 };
 
+let bottom_up_memopt = (A, K) => {
+    let N = A.length;
+    let pre = Array(K + 1).fill(0);                                               // 🤔 memo + 🛑 empty set
+    for (let i = 1; i <= N; ++i) {
+        let cur = Array(K + 1).fill(-Infinity);
+        for (let k = 0; k <= K; ++k) {
+            let [value, weight] = A[i - 1];
+            let include = 0 <= k - weight ? pre[k - weight] + value : -Infinity,  // ✅ include A[i]
+                exclude = pre[k];                                                 // 🚫 exclude A[i]
+            cur[k] = Math.max(include, exclude);                                  // 🎯 best
+        }
+        [pre, cur] = [cur, pre];
+    }
+    return pre[K];
+};
+
 let run = filename => {
     let A = [];
     const input = new LineByLine(filename)
@@ -3763,8 +3796,9 @@ let run = filename => {
         A.push([value, weight]);
     }
     let a = top_down(A, K),
-        b = bottom_up(A, K);
-    assert(a == b); // 💩 sanity check
+        b = bottom_up(A, K),
+        c = bottom_up_memopt(A, K);
+    assert(a == b && b == c); // 💩 sanity check
     console.log(`${filename}: ${a}`);
 };
 
@@ -3801,6 +3835,19 @@ def bottom_up(A, K):
             dp[i][k] = max(include, exclude)                                               # 🎯 best
     return dp[N][K]
 
+def bottom_up_memopt(A, K):
+    N = len(A)
+    pre = [0] * (K + 1)                                                              # 🤔 memo + 🛑 empty set
+    for i in range(1, N + 1):
+        cur = [float('-inf')] * (K + 1)
+        for k in range(1, K + 1):
+            value, weight = A[i - 1]
+            include = pre[k - weight] + value if 0 <= k - weight else float('-inf')  # ✅ include A[i]
+            exclude = pre[k]                                                         # 🚫 exclude A[i]
+            cur[k] = max(include, exclude)                                           # 🎯 best
+        pre, cur = cur, pre
+    return pre[K]
+
 def run(filename):
     A = []
     with open(filename) as fin:
@@ -3814,7 +3861,8 @@ def run(filename):
             A.append([value, weight])
     a = top_down(A, K)
     b = bottom_up(A, K)
-    assert(a == b)
+    c = bottom_up_memopt(A, K)
+    assert(a == b and b == c) # 💩 sanity check
     print(f'{filename}: {a}')
 
 run('problem16.7test.txt')  # problem16.7test.txt: 2493893
@@ -3869,6 +3917,23 @@ int bottom_up(Pairs& A, int K) {
     return dp[N][K];
 }
 
+int bottom_up_memopt(Pairs& A, int K) {
+    auto N = A.size();
+    using VI = vector<int>;
+    VI pre(K + 1, 0);                                                        // 🤔 memo + 🛑 empty set
+    for (auto i{ 1 }; i <= N; ++i) {
+        VI cur(K + 1, -INF);
+        for (auto k{ 0 }; k <= K; ++k) {
+            auto [value, weight] = A[i - 1];
+            auto include = 0 <= k - weight ? pre[k - weight] +value : -INF,  // ✅ include A[i]
+            exclude = pre[k];                                                // 🚫 exclude A[i]
+            cur[k] = max(include, exclude);                                  // 🎯 best
+        }
+        swap(pre, cur);
+    }
+    return pre[K];
+}
+
 void run(const string& filename) {
     Pairs A;
     fstream fin{ filename };
@@ -3876,8 +3941,9 @@ void run(const string& filename) {
     fin >> K >> N;
     for (int value, weight; fin >> value >> weight; A.emplace_back(value, weight));
     auto a = top_down(A, K),
-         b = bottom_up(A, K);
-    assert(a == b);
+         b = bottom_up(A, K),
+         c = bottom_up_memopt(A, K);
+    assert(a == b && b == c); // 💩 sanity check
     cout << filename << ": " << a << endl;
 }
 

@@ -36,6 +36,22 @@ fun bottom_up(A: List<Pair<Int, Int>>, K: Int): Int {
     return dp[N][K]
 }
 
+fun bottom_up_memopt(A: List<Pair<Int, Int>>, K: Int): Int {
+    var N = A.size
+    var pre = Array(K + 1) { 0 }                                                  // 🤔 memo + 🛑 empty set
+    for (i in 1..N) {
+        var cur = Array(K + 1) { -INF }
+        for (k in 0..K) {
+            var (value, weight) = A[i - 1]
+            var include = if (0 <= k - weight) pre[k - weight] + value else -INF  // ✅ include A[i]
+            var exclude = pre[k]                                                  // 🚫 exclude A[i]
+            cur[k] = Math.max(include, exclude)                                   // 🎯 best
+        }
+        pre = cur.also { cur = pre }
+    }
+    return pre[K]
+}
+
 fun run(filename: String) {
     var A = mutableListOf<Pair<Int, Int>>()
     var K = 0
@@ -54,7 +70,8 @@ fun run(filename: String) {
     }
     var a = top_down(A, K)
     var b = bottom_up(A, K)
-    assert(a == b) // 💩 sanity check
+    var c = bottom_up_memopt(A, K)
+    assert(a == b && b == c) // 💩 sanity check
     println("$filename: $a")
 }
 

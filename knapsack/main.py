@@ -26,6 +26,19 @@ def bottom_up(A, K):
             dp[i][k] = max(include, exclude)                                               # 🎯 best
     return dp[N][K]
 
+def bottom_up_memopt(A, K):
+    N = len(A)
+    pre = [0] * (K + 1)                                                              # 🤔 memo + 🛑 empty set
+    for i in range(1, N + 1):
+        cur = [float('-inf')] * (K + 1)
+        for k in range(1, K + 1):
+            value, weight = A[i - 1]
+            include = pre[k - weight] + value if 0 <= k - weight else float('-inf')  # ✅ include A[i]
+            exclude = pre[k]                                                         # 🚫 exclude A[i]
+            cur[k] = max(include, exclude)                                           # 🎯 best
+        pre, cur = cur, pre
+    return pre[K]
+
 def run(filename):
     A = []
     with open(filename) as fin:
@@ -39,7 +52,8 @@ def run(filename):
             A.append([value, weight])
     a = top_down(A, K)
     b = bottom_up(A, K)
-    assert(a == b)
+    c = bottom_up_memopt(A, K)
+    assert(a == b and b == c) # 💩 sanity check
     print(f'{filename}: {a}')
 
 run('problem16.7test.txt')  # problem16.7test.txt: 2493893

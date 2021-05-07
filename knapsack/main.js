@@ -33,6 +33,22 @@ let bottom_up = (A, K) => {
     return dp[N][K];
 };
 
+let bottom_up_memopt = (A, K) => {
+    let N = A.length;
+    let pre = Array(K + 1).fill(0);                                               // 🤔 memo + 🛑 empty set
+    for (let i = 1; i <= N; ++i) {
+        let cur = Array(K + 1).fill(-Infinity);
+        for (let k = 0; k <= K; ++k) {
+            let [value, weight] = A[i - 1];
+            let include = 0 <= k - weight ? pre[k - weight] + value : -Infinity,  // ✅ include A[i]
+                exclude = pre[k];                                                 // 🚫 exclude A[i]
+            cur[k] = Math.max(include, exclude);                                  // 🎯 best
+        }
+        [pre, cur] = [cur, pre];
+    }
+    return pre[K];
+};
+
 let run = filename => {
     let A = [];
     const input = new LineByLine(filename)
@@ -43,8 +59,9 @@ let run = filename => {
         A.push([value, weight]);
     }
     let a = top_down(A, K),
-        b = bottom_up(A, K);
-    assert(a == b); // 💩 sanity check
+        b = bottom_up(A, K),
+        c = bottom_up_memopt(A, K);
+    assert(a == b && b == c); // 💩 sanity check
     console.log(`${filename}: ${a}`);
 };
 

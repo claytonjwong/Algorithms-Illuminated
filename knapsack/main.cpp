@@ -45,6 +45,23 @@ int bottom_up(Pairs& A, int K) {
     return dp[N][K];
 }
 
+int bottom_up_memopt(Pairs& A, int K) {
+    auto N = A.size();
+    using VI = vector<int>;
+    VI pre(K + 1, 0);                                                        // 🤔 memo + 🛑 empty set
+    for (auto i{ 1 }; i <= N; ++i) {
+        VI cur(K + 1, -INF);
+        for (auto k{ 0 }; k <= K; ++k) {
+            auto [value, weight] = A[i - 1];
+            auto include = 0 <= k - weight ? pre[k - weight] +value : -INF,  // ✅ include A[i]
+            exclude = pre[k];                                                // 🚫 exclude A[i]
+            cur[k] = max(include, exclude);                                  // 🎯 best
+        }
+        swap(pre, cur);
+    }
+    return pre[K];
+}
+
 void run(const string& filename) {
     Pairs A;
     fstream fin{ filename };
@@ -52,8 +69,9 @@ void run(const string& filename) {
     fin >> K >> N;
     for (int value, weight; fin >> value >> weight; A.emplace_back(value, weight));
     auto a = top_down(A, K),
-         b = bottom_up(A, K);
-    assert(a == b);
+         b = bottom_up(A, K),
+         c = bottom_up_memopt(A, K);
+    assert(a == b && b == c); // 💩 sanity check
     cout << filename << ": " << a << endl;
 }
 
