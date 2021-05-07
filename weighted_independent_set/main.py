@@ -12,7 +12,7 @@ from functools import lru_cache
 
 def top_down(A):
     N = len(A)
-    @lru_cache                        # 🤔 memo
+    @lru_cache(maxsize = None)        # 🤔 memo
     def go(i = N - 1):
         if i < 0: return 0            # 🛑 empty set
         if i == 0: return A[0]        # 🛑 single set
@@ -32,6 +32,18 @@ def bottom_up(A):
         dp[i] = max(include, exclude)   # 🎯 best
     return dp[N]
 
+def bottom_up_memopt(A):
+    N = len(A)
+    a = 0                          # 🤔 memo + 🛑 empty set
+    b = A[0]                       # 🤔 memo + 🛑 single set
+    c = -1
+    for i in range(2, N + 1):
+        include = a + A[i - 1]     # ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+        exclude = b                # 🚫 exclude A[i]
+        c = max(include, exclude)  # 🎯 best
+        a = b; b = c               # 👈 slide window
+    return c
+
 def run(filename):
     A = []
     with open(filename) as fin:
@@ -48,7 +60,8 @@ def run(filename):
                 N = x
     a = top_down(A)
     b = bottom_up(A)
-    assert(a == b)             # 💩 sanity check
+    c = bottom_up_memopt(A)
+    assert(a == b and b == c) # 💩 sanity check
     print(f'{filename}: {a}')
 
 run('problem16.6test.txt')     # problem16.6test.txt: 2617

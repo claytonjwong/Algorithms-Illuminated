@@ -45,6 +45,20 @@ fun bottomUp(A: MutableList<Long>): Long {
     return dp[N]
 }
 
+fun bottomUpMemOpt(A: MutableList<Long>): Long {
+    var N = A.size
+    var a: Long = 0                     // 🤔 memo + 🛑 empty set
+    var b: Long = A[0]                  // 🤔 memo + 🛑 single set
+    var c: Long = -1
+    for (i in 2..N) {
+        var include = a + A[i - 1]      // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+        var exclude = b                 // 🚫 exclude A[i]
+        c = Math.max(include, exclude)  // 🎯 best
+        a = b; b = c                    // 👈 slide window
+    }
+    return c
+}
+
 fun run(filename: String) {
     var A = mutableListOf<Long>()
     var first = true
@@ -57,7 +71,8 @@ fun run(filename: String) {
     }
     var a = topDown(A)
     var b = bottomUp(A)
-    assert(a == b) // 💩 sanity check
+    var c = bottomUpMemOpt(A)
+    assert(a == b && b == c) // 💩 sanity check
     println("$filename: $a")
 }
 

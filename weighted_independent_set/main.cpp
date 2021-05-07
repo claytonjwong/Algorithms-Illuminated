@@ -49,14 +49,31 @@ namespace BottomUp {
     }
 }
 
+namespace BottomUpMemOpt {
+    LL best(List& A) {
+        int N = A.size();
+        LL a = 0LL,                       // 🤔 memo + 🛑 empty set
+           b = A[0],                      // 🤔 memo + 🛑 single set
+           c = -1;
+        for (auto i{ 2 }; i <= N; ++i) {
+            auto include = a + A[i - 1],  // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+                 exclude = b;             // 🚫 exclude A[i]
+            c = max(include, exclude);    // 🎯 best
+            a = b, b = c;                 // 👈 slide window
+        }
+        return c;
+    }
+}
+
 void run(const string& filename) {
     List A;
     fstream fin{ filename };
     int N; fin >> N;
     copy_n(istream_iterator<LL>(fin), N, back_inserter(A));
     auto a = TopDown::best(A),
-         b = BottomUp::best(A);
-    assert(a == b); // 💩 sanity check
+         b = BottomUp::best(A),
+         c = BottomUpMemOpt::best(A);
+    assert(a == b && b == c); // 💩 sanity check
     cout << filename << ": " << a << endl;
 }
 

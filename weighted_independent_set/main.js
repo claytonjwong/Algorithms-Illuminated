@@ -38,6 +38,20 @@ let bottom_up = A => {
     return dp[N];
 };
 
+let bottom_up_memopt = A => {
+    let N = A.length;
+    let a = 0,                           // 🤔 memo + 🛑 empty set
+        b = A[0],                        // 🤔 memo + 🛑 single set
+        c = -1;
+    for (let i = 2; i <= N; ++i) {
+        let include = a + A[i - 1],      // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+            exclude = b;                 // 🚫 exclude A[i]
+        c = Math.max(include, exclude);  // 🎯 best
+        a = b, b = c;                    // 👈 slide window
+    }
+    return c;
+};
+
 let run = filename => {
     let A = [];
     let input = new LineByLine(filename);
@@ -51,8 +65,9 @@ let run = filename => {
         }
     }
     let a = top_down(A),
-        b = bottom_up(A);
-    assert(a == b); // 💩 sanity check
+        b = bottom_up(A),
+        c = bottom_up_memopt(A);
+    assert(a == b && b == c); // 💩 sanity check
     console.log(`${filename}: ${a}`);
 };
 

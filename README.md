@@ -3444,6 +3444,20 @@ fun bottomUp(A: MutableList<Long>): Long {
     return dp[N]
 }
 
+fun bottomUpMemOpt(A: MutableList<Long>): Long {
+    var N = A.size
+    var a: Long = 0                     // 🤔 memo + 🛑 empty set
+    var b: Long = A[0]                  // 🤔 memo + 🛑 single set
+    var c: Long = -1
+    for (i in 2..N) {
+        var include = a + A[i - 1]      // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+        var exclude = b                 // 🚫 exclude A[i]
+        c = Math.max(include, exclude)  // 🎯 best
+        a = b; b = c                    // 👈 slide window
+    }
+    return c
+}
+
 fun run(filename: String) {
     var A = mutableListOf<Long>()
     var first = true
@@ -3456,7 +3470,8 @@ fun run(filename: String) {
     }
     var a = topDown(A)
     var b = bottomUp(A)
-    assert(a == b) // 💩 sanity check
+    var c = bottomUpMemOpt(A)
+    assert(a == b && b == c) // 💩 sanity check
     println("$filename: $a")
 }
 
@@ -3498,6 +3513,20 @@ let bottom_up = A => {
     return dp[N];
 };
 
+let bottom_up_memopt = A => {
+    let N = A.length;
+    let a = 0,                           // 🤔 memo + 🛑 empty set
+        b = A[0],                        // 🤔 memo + 🛑 single set
+        c = -1;
+    for (let i = 2; i <= N; ++i) {
+        let include = a + A[i - 1],      // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+            exclude = b;                 // 🚫 exclude A[i]
+        c = Math.max(include, exclude);  // 🎯 best
+        a = b, b = c;                    // 👈 slide window
+    }
+    return c;
+};
+
 let run = filename => {
     let A = [];
     let input = new LineByLine(filename);
@@ -3511,8 +3540,9 @@ let run = filename => {
         }
     }
     let a = top_down(A),
-        b = bottom_up(A);
-    assert(a == b); // 💩 sanity check
+        b = bottom_up(A),
+        c = bottom_up_memopt(A);
+    assert(a == b && b == c); // 💩 sanity check
     console.log(`${filename}: ${a}`);
 };
 
@@ -3546,6 +3576,18 @@ def bottom_up(A):
         dp[i] = max(include, exclude)   # 🎯 best
     return dp[N]
 
+def bottom_up_memopt(A):
+    N = len(A)
+    a = 0                          # 🤔 memo + 🛑 empty set
+    b = A[0]                       # 🤔 memo + 🛑 single set
+    c = -1
+    for i in range(2, N + 1):
+        include = a + A[i - 1]     # ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+        exclude = b                # 🚫 exclude A[i]
+        c = max(include, exclude)  # 🎯 best
+        a = b; b = c               # 👈 slide window
+    return c
+
 def run(filename):
     A = []
     with open(filename) as fin:
@@ -3562,7 +3604,8 @@ def run(filename):
                 N = x
     a = top_down(A)
     b = bottom_up(A)
-    assert(a == b)             # 💩 sanity check
+    c = bottom_up_memopt(A)
+    assert(a == b and b == c) # 💩 sanity check
     print(f'{filename}: {a}')
 
 run('problem16.6test.txt')     # problem16.6test.txt: 2617
@@ -3612,14 +3655,31 @@ namespace BottomUp {
     }
 }
 
+namespace BottomUpMemOpt {
+    LL best(List& A) {
+        int N = A.size();
+        LL a = 0LL,                       // 🤔 memo + 🛑 empty set
+           b = A[0],                      // 🤔 memo + 🛑 single set
+           c = -1;
+        for (auto i{ 2 }; i <= N; ++i) {
+            auto include = a + A[i - 1],  // ✅ include A[i] (use A[i - 1] since dp[i] is offset by 1 for explicit 🛑 empty set at index 0, ie. index -1 doesn't exist)
+                 exclude = b;             // 🚫 exclude A[i]
+            c = max(include, exclude);    // 🎯 best
+            a = b, b = c;                 // 👈 slide window
+        }
+        return c;
+    }
+}
+
 void run(const string& filename) {
     List A;
     fstream fin{ filename };
     int N; fin >> N;
     copy_n(istream_iterator<LL>(fin), N, back_inserter(A));
     auto a = TopDown::best(A),
-         b = BottomUp::best(A);
-    assert(a == b); // 💩 sanity check
+         b = BottomUp::best(A),
+         c = BottomUpMemOpt::best(A);
+    assert(a == b && b == c); // 💩 sanity check
     cout << filename << ": " << a << endl;
 }
 
