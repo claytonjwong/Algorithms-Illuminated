@@ -4022,4 +4022,168 @@ int main() {
     <img src="images/ai4large.jpg" />
 </a>
 
+---
 
+### Bellman-Ford
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Shortest Paths with Negative Edge Lengths (Section 18.1)](https://www.youtube.com/watch?v=oyHoqtxHiOs&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=54)
+* [The Bellman-Ford Algorithm (Part 1) (Section 18.2, Part 1)](https://www.youtube.com/watch?v=06OK99Aak60&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=55)
+* [The Bellman-Ford Algorithm (Part 2) (Section 18.2, Part 2)](https://www.youtube.com/watch?v=d1TWZa20Mkw&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=56)
+* [The Bellman-Ford Algorithm (Part 3) (Section 18.2, Part 3)](https://www.youtube.com/watch?v=HaXTsC8eOfo&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=57)
+* [The Bellman-Ford Algorithm (Part 4) (Section 18.2, Part 4)](https://www.youtube.com/watch?v=Otn0kbliRUQ&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=58)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+fun bellman_ford(E: Array<Triple<Int, Int, Int>>, N: Int, start: Int = 1, INF: Int = (1e6).toInt()): IntArray {
+    var dist = IntArray(N) { INF }
+    dist[start] = 0
+    var K = N - 1
+    while (0 < K--)
+        E.forEach{ (u, v, w) -> dist[v] = Math.min(dist[v], dist[u] + w)}
+    return dist
+}
+
+fun run(filename: String): IntArray {
+    var N = 0
+    var E = mutableListOf<Triple<Int, Int, Int>>()
+    File(filename).forEachLine {
+        var A = ArrayDeque(it.trim().split("\t"))
+        var u = A.removeFirst().toInt()
+        for ((v, w) in A.map{ it.split(",").map{ it.toInt() } })
+            E.add(Triple(u, v, w))
+        ++N;
+    }
+    return bellman_ford(E.toTypedArray(), N + 1)  // +1 for 1-based indexing
+}
+
+fun main() {
+    var dist = run("test.txt")
+    println(listOf(7, 37, 59, 82, 99, 115, 133, 165, 188, 197).map{ dist[it] }.joinToString(","))  // 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
+}
+```
+
+*Javascript*
+```javascript
+const LineByLine = require('n-readlines');
+
+let bellman_ford = (E, N, start = 1, INF = Number(1e9)) => {
+    let dist = Array(N).fill(INF);
+    dist[start] = 0;
+    let K = N - 1;
+    while (K--)
+        E.forEach(([u, v, w]) => dist[v] = Math.min(dist[v], dist[u] + w));
+    return dist;
+};
+
+let run = filename => {
+    let N = 0;
+    let E = [];
+    let input = new LineByLine(filename);
+    let line;
+    while (line = input.next()) {
+        let A = line.toString('ascii').split('\t').filter(it => it.length);
+        let u = Number(A.shift());
+        A.map(pair => pair.split(',').map(Number)).forEach(([v, w]) => E.push([u, v, w]));
+        ++N;
+    }
+    return bellman_ford(E, N + 1);  // +1 for 1-based indexing
+};
+
+let dist = run('test.txt');
+console.log([7, 37, 59, 82, 99, 115, 133, 165, 188, 197].map(x => dist[x]).join(','));  // 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
+```
+
+*Python3*
+```python
+def bellman_ford(E, N, start = 1, INF = int(1e6)):
+    dist = [INF] * N
+    dist[start] = 0
+    k = N - 1
+    while k:
+        for u, v, w in E:
+            dist[v] = min(dist[v], dist[u] + w)
+        k -= 1
+    return dist
+
+def run(filename):
+    E = []
+    N = 0
+    with open(filename) as fin:
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            line = line.strip()
+            A = [word for word in line.split('\t') if len(word)]
+            u = int(A[0])
+            for i in range(1, len(A)):
+                v, w = [int(x) for x in A[i].split(',')]
+                E.append([u, v, w])
+            N += 1
+    return bellman_ford(E, N + 1)  # +1 for 1-based indexing
+
+dist = run('test.txt')
+print(','.join(str(dist[x]) for x in [7, 37, 59, 82, 99, 115, 133, 165, 188, 197]))  # 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+using VI = vector<int>;
+using VS = vector<string>;
+using Edge = tuple<int, int, int>;
+using Edges = vector<Edge>;
+
+VI bellman_ford(Edges& E, int N, int start = 1, int INF = 1e6) {
+    VI dist(N, INF);
+    dist[start] = 0;
+    auto K = N - 1;
+    while (K--)
+        for (auto [u, v, w]: E)
+            dist[v] = min(dist[v], dist[u] + w);
+    return dist;
+}
+
+VI run(const string& filename) {
+    auto N = 0;
+    Edges E;
+    fstream fin{ filename };
+    VS A;
+    for (string line; getline(fin, line); A.emplace_back(line));
+    for (auto& s: A) {
+        transform(s.begin(), s.end(), s.begin(), [](auto c) { return c == ',' ? ' ' : c; });
+        stringstream ss{ s };
+        auto [u, v, w] = make_tuple(0, 0, 0);
+        ss >> u;
+        while (ss >> v >> w)
+            E.emplace_back(u, v, w);
+        ++N;
+    }
+    return bellman_ford(E, N + 1);  // +1 for 1-based indexing
+}
+
+int main() {
+    auto dist = run("test.txt");
+    VI A{ 7, 37, 59, 82, 99, 115, 133, 165, 188, 197 };
+    transform(A.begin(), A.end(), A.begin(), [&](auto x) { return dist[x]; });
+    copy(A.begin(), A.end(), ostream_iterator<int>(cout, ","));  // 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068,
+    return 0;
+}
+```
+
+</details>
