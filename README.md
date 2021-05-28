@@ -4043,13 +4043,35 @@ int main() {
 *Kotlin*
 ```kotlin
 import java.io.File
+import java.util.LinkedList
+import java.util.Queue
 
-fun bellman_ford(E: Array<Triple<Int, Int, Int>>, N: Int, start: Int = 1, INF: Int = (1e6).toInt()): IntArray {
+// bellman-ford: N - 1 edge relaxations (u -> v of cost w) [ie. attempting to relax M edges N - 1 times] given N vertices
+fun bell(E: Array<Triple<Int, Int, Int>>, N: Int, start: Int = 1, INF: Int = (1e6).toInt()): IntArray {
     var dist = IntArray(N) { INF }
     dist[start] = 0
     var K = N - 1
     while (0 < K--)
         E.forEach{ (u, v, w) -> dist[v] = Math.min(dist[v], dist[u] + w)}
+    return dist
+}
+
+// shortest-paths faster algorithm: only attempt to relax candidate edges (note: adjacency list needed)
+fun spfa(E: Array<Triple<Int, Int, Int>>, N: Int, start: Int = 1, INF: Int = (1e6).toInt()): IntArray {
+    var dist = IntArray(N) { INF }
+    dist[start] = 0
+    var adj = Array<MutableList<Pair<Int, Int>>>(N) { mutableListOf<Pair<Int, Int>>() }
+    for ((u, v, w) in E)
+        adj[u].add(Pair(v, w))
+    var q: Queue<Int> = LinkedList<Int>(listOf(start))
+    while (0 < q.size) {
+        var u = q.poll()
+        for ((v, w) in adj[u]) {
+            if (dist[v] > dist[u] + w) {
+                dist[v] = dist[u] + w; q.add(v)
+            }
+        }
+    }
     return dist
 }
 
@@ -4063,7 +4085,11 @@ fun run(filename: String): IntArray {
             E.add(Triple(u, v, w))
         ++N;
     }
-    return bellman_ford(E.toTypedArray(), N + 1)  // +1 for 1-based indexing
+    var A = E.toTypedArray()
+    var a = bell(A, N + 1)  // +1 for 1-based indexing
+    var b = spfa(A, N + 1)
+    assert(a == b)          // 💩 sanity check: single source shortest paths are the same
+    return b
 }
 
 fun main() {
@@ -4074,14 +4100,33 @@ fun main() {
 
 *Javascript*
 ```javascript
+const assert = require('assert');
+const zip = require('lodash/zip');
 const LineByLine = require('n-readlines');
 
-let bellman_ford = (E, N, start = 1, INF = Number(1e9)) => {
+// bellman-ford: N - 1 edge relaxations (u -> v of cost w) [ie. attempting to relax M edges N - 1 times] given N vertices
+let bell = (E, N, start = 1, INF = Number(1e6)) => {
     let dist = Array(N).fill(INF);
     dist[start] = 0;
     let K = N - 1;
     while (K--)
         E.forEach(([u, v, w]) => dist[v] = Math.min(dist[v], dist[u] + w));
+    return dist;
+};
+
+// shortest-paths faster algorithm: only attempt to relax candidate edges (note: adjacency list needed)
+let spfa = (E, N, start = 1, INF = Number(1e6)) => {
+    let dist = Array(N).fill(INF);
+    dist[start] = 0;
+    let adj = [...Array(N)].map(_ => []);
+    E.forEach(([u, v, w]) => adj[u].push([v, w]));
+    let q = [start];
+    while (q.length) {
+        let u = q.shift();
+        for (let [v, w] of adj[u])
+            if (dist[v] > dist[u] + w)
+                dist[v] = dist[u] + w, q.push(v);
+    }
     return dist;
 };
 
@@ -4096,7 +4141,10 @@ let run = filename => {
         A.map(pair => pair.split(',').map(Number)).forEach(([v, w]) => E.push([u, v, w]));
         ++N;
     }
-    return bellman_ford(E, N + 1);  // +1 for 1-based indexing
+    let a = bell(E, N + 1),  // +1 for 1-based indexing
+        b = spfa(E, N + 1);
+    zip(a, b).forEach(([x, y]) => assert(x == y));  // 💩 sanity check: single source shortest paths are the same
+    return a;
 };
 
 let dist = run('test.txt');
@@ -4105,7 +4153,10 @@ console.log([7, 37, 59, 82, 99, 115, 133, 165, 188, 197].map(x => dist[x]).join(
 
 *Python3*
 ```python
-def bellman_ford(E, N, start = 1, INF = int(1e6)):
+from collections import deque
+
+# bellman-ford: N - 1 edge relaxations (u -> v of cost w) [ie. attempting to relax M edges N - 1 times] given N vertices
+def bell(E, N, start = 1, INF = int(1e6)):
     dist = [INF] * N
     dist[start] = 0
     k = N - 1
@@ -4113,6 +4164,21 @@ def bellman_ford(E, N, start = 1, INF = int(1e6)):
         for u, v, w in E:
             dist[v] = min(dist[v], dist[u] + w)
         k -= 1
+    return dist
+
+# shortest-paths faster algorithm: only attempt to relax candidate edges (note: adjacency list needed)
+def spfa(E, N, start = 1, INF = int(1e6)):
+    dist = [INF] * N
+    dist[start] = 0
+    adj = {i: [] for i in range(N)}
+    for u, v, w in E:
+        adj[u].append([v, w])
+    q = deque([start])
+    while q:
+        u = q.popleft()
+        for v, w in adj[u]:
+            if dist[v] > dist[u] + w:
+                dist[v] = dist[u] + w; q.append(v)
     return dist
 
 def run(filename):
@@ -4130,7 +4196,10 @@ def run(filename):
                 v, w = [int(x) for x in A[i].split(',')]
                 E.append([u, v, w])
             N += 1
-    return bellman_ford(E, N + 1)  # +1 for 1-based indexing
+    a = bell(E, N + 1)  # +1 for 1-based indexing
+    b = spfa(E, N + 1)
+    assert(a == b)
+    return b
 
 dist = run('test.txt')
 print(','.join(str(dist[x]) for x in [7, 37, 59, 82, 99, 115, 133, 165, 188, 197]))  # 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
@@ -4142,20 +4211,43 @@ print(','.join(str(dist[x]) for x in [7, 37, 59, 82, 99, 115, 133, 165, 188, 197
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
+#include <queue>
 
 using namespace std;
 using VI = vector<int>;
 using VS = vector<string>;
 using Edge = tuple<int, int, int>;
 using Edges = vector<Edge>;
+using Pair = pair<int, int>;
+using Pairs = vector<Pair>;
+using AdjList = unordered_map<int, Pairs>;
+using Queue = queue<int>;
 
-VI bellman_ford(Edges& E, int N, int start = 1, int INF = 1e6) {
+// bellman-ford: N - 1 edge relaxations (u -> v of cost w) [ie. attempting to relax M edges N - 1 times] given N vertices
+VI bell(Edges& E, int N, int start = 1, int INF = 1e6) {
     VI dist(N, INF);
     dist[start] = 0;
     auto K = N - 1;
     while (K--)
         for (auto [u, v, w]: E)
             dist[v] = min(dist[v], dist[u] + w);
+    return dist;
+}
+
+// shortest-paths faster algorithm: only attempt to relax candidate edges (note: adjacency list needed)
+VI spfa(Edges& E, int N, int start = 1, int INF = 1e6, AdjList adj = {}) {
+    VI dist(N, INF);
+    dist[start] = 0;
+    for (auto [u, v, w]: E)
+        adj[u].emplace_back(v, w);
+    Queue q{{ start }};
+    while (q.size()) {
+        auto u = q.front(); q.pop();
+        for (auto [v, w]: adj[u])
+            if (dist[v] > dist[u] + w)
+                dist[v] = dist[u] + w, q.push(v);
+    }
     return dist;
 }
 
@@ -4174,7 +4266,10 @@ VI run(const string& filename) {
             E.emplace_back(u, v, w);
         ++N;
     }
-    return bellman_ford(E, N + 1);  // +1 for 1-based indexing
+    auto a = bell(E, N + 1),  // +1 for 1-based indexing
+         b = spfa(E, N + 1);
+    assert(a == b);
+    return b;
 }
 
 int main() {

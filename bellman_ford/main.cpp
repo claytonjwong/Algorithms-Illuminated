@@ -2,20 +2,43 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
+#include <queue>
 
 using namespace std;
 using VI = vector<int>;
 using VS = vector<string>;
 using Edge = tuple<int, int, int>;
 using Edges = vector<Edge>;
+using Pair = pair<int, int>;
+using Pairs = vector<Pair>;
+using AdjList = unordered_map<int, Pairs>;
+using Queue = queue<int>;
 
-VI bellman_ford(Edges& E, int N, int start = 1, int INF = 1e6) {
+// bellman-ford: N - 1 edge relaxations (u -> v of cost w) [ie. attempting to relax M edges N - 1 times] given N vertices
+VI bell(Edges& E, int N, int start = 1, int INF = 1e6) {
     VI dist(N, INF);
     dist[start] = 0;
     auto K = N - 1;
     while (K--)
         for (auto [u, v, w]: E)
             dist[v] = min(dist[v], dist[u] + w);
+    return dist;
+}
+
+// shortest-paths faster algorithm: only attempt to relax candidate edges (note: adjacency list needed)
+VI spfa(Edges& E, int N, int start = 1, int INF = 1e6, AdjList adj = {}) {
+    VI dist(N, INF);
+    dist[start] = 0;
+    for (auto [u, v, w]: E)
+        adj[u].emplace_back(v, w);
+    Queue q{{ start }};
+    while (q.size()) {
+        auto u = q.front(); q.pop();
+        for (auto [v, w]: adj[u])
+            if (dist[v] > dist[u] + w)
+                dist[v] = dist[u] + w, q.push(v);
+    }
     return dist;
 }
 
@@ -34,7 +57,10 @@ VI run(const string& filename) {
             E.emplace_back(u, v, w);
         ++N;
     }
-    return bellman_ford(E, N + 1);  // +1 for 1-based indexing
+    auto a = bell(E, N + 1),  // +1 for 1-based indexing
+         b = spfa(E, N + 1);
+    assert(a == b);
+    return b;
 }
 
 int main() {
