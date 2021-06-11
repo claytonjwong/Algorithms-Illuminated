@@ -4282,3 +4282,354 @@ int main() {
 ```
 
 </details>
+
+---
+
+### Floyd-Warshall
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [The All-Pairs Shortest Path Problem (Section 18.3)](https://www.youtube.com/watch?v=TENbWZPz3Ho&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=62)
+* [The Floyd-Warshall Algorithm (Part 1) (Section 18.4, Part 1)](https://www.youtube.com/watch?v=ogcvCr02gqM&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=63)
+* [The Floyd-Warshall Algorithm (Part 2) (Section 18.4, Part 2)](https://www.youtube.com/watch?v=3cBHwPjDZxg&list=PLXFMmlk03Dt5EMI2s2WQBsLsZl7A5HEK6&index=64)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+var key = { i: Int, j: Int -> "$i,$j" }
+var INF = (1e9 + 7).toInt()
+
+fun floyd_warshall(E: MutableMap<String, Int>, N: Int): Array<IntArray> {
+    var dp = Array(N + 1) { Array(N + 1) { IntArray(N + 1) { INF } } }
+    for (i in 0..N)
+        for (j in 0..N)
+            if (i == j)
+                dp[0][i][j] = 0
+            else
+            if (E.contains(key(i, j)))
+                dp[0][i][j] = E[key(i, j)]!!
+    for (k in 1..N)
+        for (i in 1..N)
+            for (j in 1..N)
+                dp[k][i][j] = Math.min(dp[k - 1][i][j], dp[k - 1][i][k] + dp[k - 1][k][j])
+    return dp[N]
+}
+
+fun floyd_warshall_memopt(E: MutableMap<String, Int>, N: Int): Array<IntArray> {
+    var pre = Array(N + 1) { IntArray(N + 1) { INF } }
+    for (i in 0..N)
+        for (j in 0..N)
+            if (i == j)
+                pre[i][j] = 0
+            else
+            if (E.contains(key(i, j)))
+                pre[i][j] = E[key(i, j)]!!
+    for (k in 1..N) {
+        var cur = Array(N + 1) { IntArray(N + 1) { INF } }
+        for (i in 1..N)
+            for (j in 1..N)
+                cur[i][j] = Math.min(pre[i][j], pre[i][k] + pre[k][j])
+        pre = cur.also{ cur = pre }
+    }
+    return pre
+}
+
+fun run(filename: String) {
+    var N = 0
+    var E = mutableMapOf<String, Int>()
+    var first = true
+    File(filename).forEachLine {
+        if (!first) {
+            var (u, v, w) = it.trim().split(" ").map{ it.toInt() }
+            E[key(u, v)] = w
+        } else {
+            N = it.trim().split(" ").map{ it.toInt() }[0]
+            first = false
+        }
+    }
+    var a = floyd_warshall_memopt(E, N)
+    var b = floyd_warshall(E, N)
+    for (i in 1..N)
+        for (j in 1..N)
+            assert(a[i][j] == b[i][j])  // 💩 sanity check
+    var cycle = false
+    for (i in 1..N)
+        if (a[i][i] < 0)
+            cycle = true
+    if (cycle) {
+        println("$filename: contains a negative cycle")
+        return
+    }
+    var best = INF
+    for (i in 1..N)
+        for (j in 1..N)
+            best = Math.min(best, a[i][j])
+    println("$filename: $best")
+}
+
+fun main() {
+    run("problem18.8test1.txt");  // problem18.8test1.txt: -2
+    run("problem18.8test2.txt");  // problem18.8test2.txt: contains a negative cycle
+    run("problem18.8file1.txt");  // problem18.8file1.txt: contains a negative cycle
+    run("problem18.8file2.txt");  // problem18.8file2.txt: contains a negative cycle
+    run("problem18.8file3.txt");  // problem18.8file3.txt: -19
+    // run("problem18.8file4.txt");
+}
+```
+
+*Javascript*
+```javascript
+const LineByLine = require('n-readlines');
+const assert = require('assert');
+
+let key = (i, j) => `${i},${j}`;
+
+let floyd_warshall = (E, N) => {
+    let dp = [...Array(N + 1)].map(_ => [...Array(N + 1)].map(_ => Array(N + 1).fill(Infinity)));
+    for (let i = 1; i <= N; ++i)
+        for (let j = 1; j <= N; ++j)
+            if (i == j)
+                dp[0][i][j] = 0;
+            else
+            if (E.has(key(i, j)))
+                dp[0][i][j] = E.get(key(i, j));
+    for (let k = 1; k <= N; ++k)
+        for (let i = 1; i <= N; ++i)
+            for (let j = 1; j <= N; ++j)
+                dp[k][i][j] = Math.min(dp[k - 1][i][j], dp[k - 1][i][k] + dp[k - 1][k][j]);
+    return dp[N];
+};
+
+let floyd_warshall_memopt = (E, N) => {
+    let pre = [...Array(N + 1)].map(_ => Array(N + 1).fill(Infinity));
+    for (let i = 1; i <= N; ++i)
+        for (let j = 1; j <= N; ++j)
+            if (i == j)
+                pre[i][j] = 0;
+            else
+            if (E.has(key(i, j)))
+                pre[i][j] = E.get(key(i, j));
+    for (let k = 1; k <= N; ++k) {
+        let cur = [...Array(N + 1)].map(_ => Array(N + 1).fill(Infinity));
+        for (let i = 1; i <= N; ++i)
+            for (let j = 1; j <= N; ++j)
+                cur[i][j] = Math.min(pre[i][j], pre[i][k] + pre[k][j]);
+        [pre, cur] = [cur, pre];
+    }
+    return pre;
+};
+
+let run = filename => {
+    let E = new Map();
+    let input = new LineByLine(filename);
+    let [N, _] = input.next().toString('ascii').split(' ').map(Number);
+    let line;
+    while (line = input.next()) {
+        let [u, v, w] = line.toString('ascii').split(' ').map(Number);
+        E.set(key(u, v), w);
+    }
+    let a = floyd_warshall_memopt(E, N),
+        b = floyd_warshall(E, N);
+    for (let i = 1; i <= N; ++i)
+        for (let j = 1; j <= N; ++j)
+            assert(a[i][j] == b[i][j]);
+    let cycle = false;
+    for (let i = 1; i <= N; ++i)
+        if (a[i][i] < 0)
+            cycle = true;
+    if (cycle) {
+        console.log(`${filename}: contains a negative cycle`);
+        return;
+    }
+    var best = Infinity;
+    for (row of a)
+        best = Math.min(best, ...row);
+    console.log(`${filename}: ${best}`);
+};
+
+run('problem18.8test1.txt');  // problem18.8test1.txt: -2
+run('problem18.8test2.txt');  // problem18.8test2.txt: contains a negative cycle
+run('problem18.8file1.txt');  // problem18.8file1.txt: contains a negative cycle
+run('problem18.8file2.txt');  // problem18.8file2.txt: contains a negative cycle
+run('problem18.8file3.txt');  // problem18.8file3.txt: -19
+// run('problem18.8file4.txt');
+```
+
+*Python3*
+```python
+key = lambda i, j: f'{i},{j}'
+
+def floyd_warshall(E, N):
+    dp = [[[float('inf')] * (N + 1) for _ in range(N + 1)] for _ in range(N + 1)]
+    for i in range(1, N + 1):
+        for j in range(1, N + 1):
+            if i == j:
+                dp[0][i][j] = 0
+            elif key(i, j) in E:
+                dp[0][i][j] = E[key(i, j)]
+    for k in range(1, N + 1):
+        for i in range(1, N + 1):
+            for j in range(1, N + 1):
+                dp[k][i][j] = min(dp[k - 1][i][j], dp[k - 1][i][k] + dp[k - 1][k][j])
+    return dp[N]
+
+def floyd_warshall_memopt(E, N):
+    pre = [[float('inf')] * (N + 1) for _ in range(N + 1)]
+    for i in range(1, N + 1):
+        for j in range(1, N + 1):
+            if i == j:
+                pre[i][j] = 0
+            elif key(i, j) in E:
+                pre[i][j] = E[key(i, j)]
+    for k in range(1, N + 1):
+        cur = [[float('inf')] * (N + 1) for _ in range(N + 1)]
+        for i in range(1, N + 1):
+            for j in range(1, N + 1):
+                cur[i][j] = min(pre[i][j], pre[i][k] + pre[k][j])
+        pre, cur = cur, pre
+    return pre
+
+def run(filename):
+    E = {}
+    N = 0
+    first = True
+    with open(filename) as fin:
+        while True:
+            line = fin.readline()
+            if not line:
+                break
+            if not first:
+                u, v, w = [int(x) for x in line.strip().split(' ')]
+                E[key(u, v)] = w
+            else:
+                N = [int(x) for x in line.strip().split(' ')][0]
+                first = False
+    a = floyd_warshall_memopt(E, N)
+    b = floyd_warshall(E, N)
+    for i in range(1, N + 1):
+        for j in range(1, N + 1):
+            assert(a[i][j] == b[i][j])  # 💩 sanity check
+    cycle = False
+    for i in range(1, N + 1):
+        if a[i][i] < 0:
+            cycle = True
+    if cycle:
+        print(f'{filename}: contains a negative cycle')
+        return
+    best = float('inf')
+    for row in a:
+        best = min(best, *row)
+    print(f'{filename}: {best}')
+
+run('problem18.8test1.txt')  # problem18.8test1.txt: -2
+run('problem18.8test2.txt')  # problem18.8test2.txt: contains a negative cycle
+run('problem18.8file1.txt')  # problem18.8file1.txt: contains a negative cycle
+run('problem18.8file2.txt')  # problem18.8file2.txt: contains a negative cycle
+run('problem18.8file3.txt')  # problem18.8file3.txt: -19
+# run('problem18.8file4.txt')
+```
+
+*C++*
+```cpp
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <unordered_map>
+
+#define PERF_TEST
+
+using namespace std;
+
+using LL = long long;
+using VL = vector<LL>;
+using VVL = vector<VL>;
+using VVVL = vector<VVL>;
+using Edges = unordered_map<string, LL>;
+
+LL INF = 1e9 + 7;
+
+string key(int i, int j) {
+    stringstream ss; ss << i << "," << j;
+    return ss.str();
+}
+
+VVL floyd_warshall(Edges& E, int N) {
+    VVVL dp(N + 1, VVL(N + 1, VL(N + 1, INF)));
+    for (auto i{ 1 }; i <= N; ++i)
+        for (auto j{ 1 }; j <= N; ++j)
+            if (i == j)
+                dp[0][i][j] = 0;
+            else
+            if (E.find(key(i, j)) != E.end())
+                dp[0][i][j] = E[key(i, j)];
+    for (auto k{ 1 }; k <= N; ++k)
+        for (auto i{ 1 }; i <= N; ++i)
+            for (auto j{ 1 }; j <= N; ++j)
+                dp[k][i][j] = min(dp[k - 1][i][j], dp[k - 1][i][k] + dp[k - 1][k][j]);
+    return dp[N];
+}
+
+VVL floyd_warshall_memopt(Edges& E, int N) {
+    VVL pre(N + 1, VL(N + 1, INF));
+    for (auto i{ 1 }; i <= N; ++i)
+        for (auto j{ 1 }; j <= N; ++j)
+            if (i == j)
+                pre[i][j] = 0;
+            else
+            if (E.find(key(i, j)) != E.end())
+                pre[i][j] = E[key(i, j)];
+    for (auto k{ 1 }; k <= N; ++k) {
+        VVL cur(N + 1, VL(N + 1, INF));
+        for (auto i{ 1 }; i <= N; ++i)
+            for (auto j{ 1 }; j <= N; ++j)
+                cur[i][j] = min(pre[i][j], pre[i][k] + pre[k][j]);
+        swap(pre, cur);
+    }
+    return pre;
+}
+
+void run(const string& filename) {
+    Edges E;
+    fstream fin{ filename };
+    int N, M; fin >> N >> M;
+    for (int u, v, w; fin >> u >> v >> w; E[key(u, v)] = w);
+#ifdef PERF_TEST
+    auto a = floyd_warshall_memopt(E, N);
+#else
+    auto a = floyd_warshall_memopt(E, N),
+         b = floyd_warshall(E, N);
+    assert(a == b);  // 💩 sanity check
+#endif
+    auto cycle = false;
+    for (auto i{ 1 }; i <= N && !cycle; ++i)
+        cycle = a[i][i] < 0;
+    if (cycle) {
+        cout << filename << ": contains a negative cycle" << endl;
+        return;
+    }
+    auto best = INF;
+    for (auto& row: a)
+        best = min(best, *min_element(row.begin(), row.end()));
+    cout << filename << ": " << best << endl;
+}
+
+int main() {
+    run("problem18.8test1.txt");  // problem18.8test1.txt: -2
+    run("problem18.8test2.txt");  // problem18.8test2.txt: contains a negative cycle
+    run("problem18.8file1.txt");  // problem18.8file1.txt: contains a negative cycle
+    run("problem18.8file2.txt");  // problem18.8file2.txt: contains a negative cycle
+    run("problem18.8file3.txt");  // problem18.8file3.txt: -19
+//    run("problem18.8file4.txt");
+    return 0;
+}
+```
+
+</details>
