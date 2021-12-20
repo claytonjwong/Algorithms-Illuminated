@@ -3346,7 +3346,7 @@ using fun = function<int(int)>;
 
 int kruskal(Edges& E, int total = 0) {
     auto M = E.size();
-    Parents P(M); iota(P.begin(), P.end(), 0); // 🙂 parent representatives of 1..M disjoint sets 
+    Parents P(M); iota(P.begin(), P.end(), 0); // 🙂 parent representatives of 1..M disjoint sets
     fun find = [&](auto x) {
          return P[x] = P[x] == x ? x : find(P[x]);
     };
@@ -4015,13 +4015,6 @@ int main() {
 
 </details>
 
-# Part 4: Algorithms for NP-Hard Problems
-
-<br/>
-<a href="https://www.amazon.com/dp/0999282964" target="_blank">
-    <img src="images/ai4large.jpg" />
-</a>
-
 ---
 
 ### Bellman-Ford
@@ -4633,3 +4626,14 @@ int main() {
 ```
 
 </details>
+
+---
+
+# Part 4: Algorithms for NP-Hard Problems
+
+<br/>
+<a href="https://www.amazon.com/dp/0999282964" target="_blank">
+    <img src="images/ai4large.jpg" />
+</a>
+
+---
