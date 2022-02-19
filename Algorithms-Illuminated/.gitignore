@@ -42,4 +42,5 @@ cmake-build-debug
 node_modules
 
 # rust
-target/debug*
+target/debug
+target/package

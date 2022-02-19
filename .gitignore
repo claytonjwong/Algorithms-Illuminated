@@ -43,3 +43,4 @@ node_modules
 
 # rust
 target/debug
+target/package
