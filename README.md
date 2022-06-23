@@ -4637,3 +4637,7 @@ int main() {
 </a>
 
 ---
+
+## I'm searching for a "study buddy" for this book
+
+Let me know if you'd like to go through this with me.  I anticipate it will take a solid 12+ months to go through all the questions and assignments.
