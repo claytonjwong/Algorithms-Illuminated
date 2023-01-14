@@ -1,6 +1,3 @@
-import os
-os.chdir('/Users/claytonjwong/sandbox/Algorithms-Illuminated/traveling_salesman')
-
 from random import randint
 from collections import defaultdict
 
