@@ -1,0 +1,14 @@
+{
+  "name": "traveling_salesman",
+  "version": "1.0.0",
+  "description": "Quiz 19.2 and 20.7 input file format:",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "n-readlines": "^1.0.1"
+  }
+}
