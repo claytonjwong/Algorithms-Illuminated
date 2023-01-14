@@ -4638,6 +4638,284 @@ int main() {
 
 ---
 
-## I'm searching for a "study buddy" for this book
+### Traveling Salesman
 
-Let me know if you'd like to go through this with me.  I anticipate it will take a solid 12+ months to go through all the questions and assignments.
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Overview and Prerequisites (Section 19.0)](https://www.youtube.com/watch?v=qOFLAjxqoK0&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=1)
+* [MST vs. TSP: An Algorithmic Mystery (Section 19.1)](https://www.youtube.com/watch?v=9uImnCfKMlA&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=2)
+* [Possible Levels of Expertise (Section 19.2)](https://www.youtube.com/watch?v=TQ_f5PqmtYo&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=3)
+* [Easy and Hard Problems (Section 19.3)](https://www.youtube.com/watch?v=PEyRWZA3ESE&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=4)
+* [Algorithmic Strategies for NP-Hard Problems (Section 19.4)](https://www.youtube.com/watch?v=K4HZKRZ3v-M&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=5)
+* [Proving NP-Hardness: A Simple Recipe (Section 19.5)](https://www.youtube.com/watch?v=ZqDT-tlIAyY&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=6)
+* [Rookie Mistakes (Section 19.6)](https://www.youtube.com/watch?v=SBsCjEeSoeQ&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=7)
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*Kotlin*
+```kotlin
+import java.io.File
+
+class Solution() {
+    private var best = (1e9 + 7).toInt()
+    private var best_path = listOf<Int>()
+    private var start = 0
+    private var M = 0
+    private var N = 0
+    private var adj = mutableMapOf<Int, MutableSet<Int>>()
+    private var cost = mutableMapOf<String, Int>()
+    private var key = { u: Int, v: Int -> "$u,$v" }
+    private fun init(input_file: String) {
+        best = (1e9 + 7).toInt()
+        best_path = mutableListOf<Int>()
+        adj = mutableMapOf<Int, MutableSet<Int>>()
+        cost = mutableMapOf<String, Int>()
+        var i = 0
+        File(input_file).forEachLine { line ->
+            var A = line.trim().split(" ").map{ it.toInt() }
+            if (0 < i++) {
+                var (u, v, w) = A
+                if (!adj.contains(u)) adj[u] = mutableSetOf<Int>()
+                if (!adj.contains(v)) adj[v] = mutableSetOf<Int>()
+                adj[u]!!.add(v); cost[key(u, v)] = w
+                adj[v]!!.add(u); cost[key(v, u)] = w
+            } else {
+                N = A[0]
+                M = A[1]
+            }
+        }
+    }
+    fun run(input_file: String): Pair<Int, List<Int>> {
+        init(input_file)
+        start = 1
+        go(start, mutableListOf<Int>(start), mutableSetOf<Int>(start))
+        return Pair<Int, List<Int>>(best, best_path)
+    }
+    fun go(u: Int, path: MutableList<Int>, seen: MutableSet<Int>, t_: Int = 0) {
+        if (seen.size == N) {
+            var t = t_ + (cost[key(u, start)] ?: 0)
+            if (adj[u]!!.contains(start) && t < best) {
+                best = t; best_path = path.toList()
+            }
+            return
+        }
+        for (v in adj[u]!!) {
+            if (seen.contains(v))
+                continue
+            path.add(v); seen.add(v)
+            go(v, path, seen, t_ + cost[key(u, v)]!!)
+            path.removeLast(); seen.remove(v)
+        }
+    }
+}
+
+fun main() {
+    var s = Solution()
+    for (input_file in listOf("quiz19.2.txt", "quiz20.7.txt")) {
+        var (best, path) = s.run(input_file)
+        println("$input_file  best: $best  path: ${path.joinToString()}")
+    }
+}
+// quiz19.2.txt  best: 13  path: 1, 2, 4, 3
+// quiz20.7.txt  best: 23  path: 1, 3, 2, 5, 4
+```
+
+*Javascript*
+```javascript
+let LineByLine = require('n-readlines');
+
+class Solution {
+    key = (u, v) => `${u},${v}`;
+    init(input_file) {
+        this.best = Number(1e9 + 7);
+        this.best_path = [];
+        this.M = 0;
+        this.N = 0;
+        this.adj = new Map();
+        this.cost = new Map();
+        let [A, line, i] = [[], '', 0];
+        let input = new LineByLine(input_file);
+        while (line = input.next()) {
+            let A = String.fromCharCode(...line).trim().split(' ').map(Number);
+            if (0 < i++) {
+                let [u, v, w] = A;
+                if (!this.adj.has(u)) this.adj.set(u, new Set());
+                if (!this.adj.has(v)) this.adj.set(v, new Set());
+                this.adj.get(u).add(v), this.cost.set(this.key(u, v), w);
+                this.adj.get(v).add(u), this.cost.set(this.key(v, u), w);
+            } else {
+                [this.N, this.M] = A;
+            }
+        }
+    }
+    run(input_file) {
+        this.init(input_file);
+        this.start = 1;
+        this.go(this.start, [this.start], new Set([this.start]));
+        return [this.best, this.best_path];
+    }
+    go(u, path, seen, t = 0) {
+        if (seen.size == this.N) {
+            t += this.cost.get(this.key(u, this.start)) || 0;
+            if (this.adj.get(u).has(this.start) && t < this.best)
+                this.best = t, this.best_path = [...path];
+            return;
+        }
+        for (let v of this.adj.get(u)) {
+            if (seen.has(v))
+                continue;
+            path.push(v), seen.add(v);
+            this.go(v, path, seen, t + this.cost.get(this.key(u, v)));
+            path.pop(), seen.delete(v);
+        }
+    }
+}
+
+let s = new Solution();
+for (let input_file of ['quiz19.2.txt', 'quiz20.7.txt']) {
+    let [best, path] = s.run(input_file);
+    console.log(`${input_file}  best: ${best}  path: ${path}`);
+}
+// quiz19.2.txt  best: 13  path: 1,2,4,3
+// quiz20.7.txt  best: 23  path: 1,3,2,5,4
+```
+
+*Python3*
+```python
+from random import randint
+from collections import defaultdict
+
+class Solution():
+    def init(self, input_file):
+        self.best = int(1e9 + 7)
+        self.best_path = []
+        self.M = 0
+        self.N = 0
+        self.adj = defaultdict(set)
+        self.cost = defaultdict(int)
+        with open(input_file) as input:
+            for i, line in enumerate(input):
+                A = [int(x) for x in line.strip().split(' ')]
+                if 0 < i:
+                    u, v, w = A
+                    self.adj[u].add(v); self.cost[(u, v)] = w
+                    self.adj[v].add(u); self.cost[(v, u)] = w
+                else:
+                    self.N, self.M = A
+    def run(self, input_file):
+        self.init(input_file)
+        self.start = 1
+        self.go(self.start, [self.start], set([self.start]))
+        return self.best, self.best_path
+
+    def go(self, u, path, seen, t = 0):
+        if len(seen) == self.N:
+            t += self.cost[(u, self.start)] # connect ultimate edge of tour
+            if self.start in self.adj[u] and t < self.best:
+                self.best = t
+                self.best_path = path[:]
+            return
+        for v in self.adj[u]:
+            if v not in seen:
+                path.append(v); seen.add(v)
+                self.go(v, path, seen, t + self.cost[(u, v)])
+                path.pop(); seen.remove(v)
+
+s = Solution()
+for input_file in ['quiz19.2.txt', 'quiz20.7.txt']:
+    best, path = s.run(input_file)
+    print(f'{input_file}  best: {best}  path: {path}')
+# quiz19.2.txt  best: 13  path: [1, 2, 4, 3]
+# quiz20.7.txt  best: 23  path: [1, 3, 2, 5, 4]
+```
+
+*C++*
+```cpp
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+using VI = vector<int>;
+using Pair = pair<int, VI>;
+using Set = unordered_set<int>;
+using Adj = unordered_map<int, Set>;
+using Cost = unordered_map<string, int>;
+
+class Solution {
+    int best, start, M, N;
+    VI best_path;
+    Adj adj;
+    Cost cost;
+    string key(int u, int v) {
+        stringstream ss;
+        ss << u << "," << v;
+        return ss.str();
+    }
+    void init(const string& input_file, string line = {}) {
+        best = 1e9 + 7; start = M = N = 0;
+        best_path.clear();
+        adj.clear();
+        cost.clear();
+        auto i = 0;
+        fstream fin{ input_file };
+        while (getline(fin, line)) {
+            VI A;
+            istringstream is{ line };
+            copy(istream_iterator<int>(is), istream_iterator<int>(), back_inserter(A));
+            if (0 < i++) {
+                auto [u, v, w] = tie(A[0], A[1], A[2]);
+                adj[u].insert(v); cost[key(u, v)] = w;
+                adj[v].insert(u); cost[key(v, u)] = w;
+            } else {
+                N = A[0];
+                M = A[1];
+            }
+        }
+    }
+    void go(int u, VI&& path, Set&& seen, int t = 0) {
+        if (seen.size() == N) {
+            t += cost[key(u, start)]; // connect ultimate edge of tour
+            if (adj[u].find(start) != adj[u].end() && t < best)
+                best = t, best_path = path;
+            return;
+        }
+        for (auto v: adj[u]) {
+            if (seen.find(v) != seen.end())
+                continue;
+            path.push_back(v), seen.insert(v);
+            go(v, move(path), move(seen), t + cost[key(u, v)]);
+            path.pop_back(), seen.erase(v);
+        }
+    }
+public:
+    Pair run(const string& input_file) {
+        init(input_file);
+        start = 1;
+        go(start, {start}, {start});
+        return {best, best_path};
+    }
+};
+
+int main() {
+    auto s = Solution();
+    for (auto& input_file: {"quiz19.2.txt", "quiz20.7.txt"}) {
+        auto [best, path] = s.run(input_file);
+        cout << input_file << "  best: " << best << "  path: ";
+        copy(path.begin(), path.end(), ostream_iterator<int>(cout, " "));
+        cout << endl;
+    }
+    // quiz19.2.txt  best: 13  path: 1 3 4 2
+    // quiz20.7.txt  best: 23  path: 1 4 5 2 3
+    return 0;
+}
+```
+
+</details>
