@@ -44,3 +44,7 @@ node_modules
 # rust
 target/debug
 target/package
+
+# C++
+main
+main.dSYM
