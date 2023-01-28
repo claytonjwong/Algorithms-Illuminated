@@ -4919,3 +4919,56 @@ int main() {
 ```
 
 </details>
+
+### Traveling Salesman (Heuristic)
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Makespan Minimization (Part 1) (Section 20.1, Part 1)](https://www.youtube.com/watch?v=fn5HNoiMwHM&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=8)
+* [Makespan Minimization (Part 2) (Section 20.1, Part 2)](https://www.youtube.com/watch?v=CcdYLcLymV4&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=9)
+* [Maximum Coverage (Part 1) (Section 20.2, Part 1)](https://www.youtube.com/watch?v=GcJy8uzSUbA&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=10)
+* [Maximum Coverage (Part 2) (Section 20.2, Part 2)](https://www.youtube.com/watch?v=fHldsoBMFKI&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=11)
+* [Influence Maximization (Part 1) (Section 20.3, Part 1)](https://www.youtube.com/watch?v=GqKbx3LCQqE&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=12)
+* [Influence Maximization (Part 2) (Section 20.3, Part 2)](https://www.youtube.com/watch?v=_1-Vv5Vid9Q&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=13)
+* [2-OPT Heuristic for the TSP (Part 1) (Section 20.4, Part 1)](https://www.youtube.com/watch?v=dYEWqrp-mho&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=14)
+* [2-OPT Heuristic for the TSP (Part 2) (Section 20.4, Part 2)](https://www.youtube.com/watch?v=8vbKIfpDPJI&list=PLEGCF-WLh2RK6lq3iSsiU84rWVee3A-hz&index=15)
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+*TSP Nearest Neighbor Heuristic (Python3)*
+```python
+from collections import defaultdict
+
+N, M = -1, -1
+adj = defaultdict(list)
+cost, key = {}, lambda u, v: f'{u},{v}'
+with open('input.txt') as input:
+    for line in input:
+        A = [int(x) for x in line.strip().split(' ')]
+        if len(A) == 3:
+            u, v, w = A
+            adj[u].append(v); cost[key(u, v)] = w
+            adj[v].append(u); cost[key(v, u)] = w
+        elif len(A) == 2:
+            N, M = A
+
+start = 1
+u, seen, path = start, set([start]), [start]
+while len(seen) < N:
+    best, best_v = float('inf'), -1
+    for v in adj[u]:
+        if v not in seen:
+            cand = cost[key(u, v)]
+            if best > cand:
+                best = cand; best_v = v
+    u = best_v; seen.add(best_v); path.append(best_v)
+path.append(start) # add last edge to complete the tour
+t = sum(cost[key(path[i - 1], path[i])] for i in range(1, len(path)))
+print(f'total: {t}  path: {path}')
+# total: 29  path: [1, 2, 3, 4, 5, 1]
+```
+
+</details>
