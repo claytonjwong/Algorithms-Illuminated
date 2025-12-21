@@ -11,14 +11,17 @@ function go(x, y)
   if x < 10 || y < 10
     return x * y
   end
+
   n = max(length(string(x)), length(string(y)))
   if isodd(n)
     n += 1
   end
+
   m = 10 ^ div(n, 2) # middle decimal value
   a, b = div(x, m), mod(x, m)
   c, d = div(y, m), mod(y, m)
   p, q = a + b, c + d
+
   ac = go(a, c)
   bd = go(b, d)
   pq = go(p, q)
