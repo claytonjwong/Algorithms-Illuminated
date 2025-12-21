@@ -11,8 +11,8 @@ function go(x, y)
     return x * y
   end
   m = 10 ^ div(n, 2) # middle decimal value
-  a, b = div(x, m), x % m
-  c, d = div(y, m), y % m
+  a, b = div(x, m), mod(x, m)
+  c, d = div(y, m), mod(y, m)
   return 10^n * go(a, c) + 10^div(n, 2) * (go(a, d) + go(b, c)) + go(b, d)
 end
 
