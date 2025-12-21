@@ -20,7 +20,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 
 ---
 
-### Recursive Integer Multiplication
+### Integer Multiplication
 
 <details><summary>📚 Lectures</summary>
 <br/>
