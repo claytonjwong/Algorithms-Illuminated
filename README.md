@@ -18,6 +18,30 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
     <img src="images/ai1large.jpg" />
 </a>
 
+<details><summary>⚡️ TL;DR</summary>
+<br/>
+
+> A "fast algorithm" is an algorithm whose worst-case runtime grows slowly with the input size.
+
+* **Recursion Tree:** each child node corresponds to recusive invocations by its parent node
+* **Algorithm Analysis Principles**
+  1. Worst-Case
+     * no input assumptions for general-purpose analysis
+  2. Big-Picture
+     * drop constant factors and lower-order terms for runtime upper bound
+       * mathematical tractability
+       * primitive operation runtime depends on environmental factors
+       * retains accurate predictions for slow/fast algorithms
+  3. Asymptotic Analysis
+     * focus on the runtime growth for large inputs
+       * only large inputs require algorithmic ingenuity
+* **For-Free Primitives**
+  * Linear-time algorithms (the "holy grail")
+    * Runtime is proportional to the input size
+    * "Free" since the time to perform the algorithm is on the order of time to simply read the input
+
+</details>
+
 ---
 
 ### Integer Multiplication
