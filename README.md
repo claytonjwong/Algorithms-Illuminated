@@ -18,7 +18,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
     <img src="images/ai1large.jpg" />
 </a>
 
-<details><summary>⚡️ TL;DR</summary>
+<details><summary>⚡️ TL;DR ⚡️</summary>
 <br/>
 
 > A "fast algorithm" is an algorithm whose worst-case runtime grows slowly with the input size.
