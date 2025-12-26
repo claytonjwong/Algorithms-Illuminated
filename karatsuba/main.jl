@@ -46,3 +46,12 @@ Random.seed!(123456789)
         println("($x x $y)\nexpect: $expect\nactual: $actual\n")
     end
 end
+
+@testset "Challenge Problem" begin
+    x = 3141592653589793238462643383279502884197169399375105820974944592
+    y = 2718281828459045235360287471352662497757247093699959574966967627
+
+    expect, actual = x * y, go(x, y)
+    @test expect == actual
+    println("($x x $y)\nexpect: $expect\nactual: $actual\n")
+end

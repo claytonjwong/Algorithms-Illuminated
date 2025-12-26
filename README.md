@@ -57,6 +57,30 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 <details><summary>🎯 Solutions</summary>
 <br/>
 
+*Python3*
+```python
+def go(x, y):
+    if x < 10 or y < 10:
+        return x * y
+    n = max(len(str(x)), len(str(y)))
+    if n & 1:
+        n += 1  # +1 is n is odd
+    m = 10 ** (n // 2)
+    a, b = x // m, x % m
+    c, d = y // m, y % m
+    p, q = a + b, c + d
+
+    ac = go(a, c)
+    bd = go(b, d)
+    pq = go(p, q)
+    adbc = pq - ac - bd
+    return 10**n * ac + 10**(n//2) * adbc + bd
+
+x = 3141592653589793238462643383279502884197169399375105820974944592
+y = 2718281828459045235360287471352662497757247093699959574966967627
+assert(x * y == go(x, y))
+```
+
 *Julia*
 ```julia
 using Test, Random
