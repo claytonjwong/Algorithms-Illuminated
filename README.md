@@ -24,6 +24,7 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
 > A "fast algorithm" is an algorithm whose worst-case runtime grows slowly with the input size.
 
 * **Recursion Tree:** each child node corresponds to recusive invocations by its parent node
+  * helpful visualization of work done by recursive algorithms to quantify aymptotic bounds
 * **Algorithm Analysis Principles**
   1. Worst-Case
      * no input assumptions for general-purpose analysis
@@ -39,7 +40,11 @@ Coincidentally, my [algorithm learning journey](https://github.com/claytonjwong/
   * Linear-time algorithms (the "holy grail")
     * Runtime is proportional to the input size
     * "Free" since the time to perform the algorithm is on the order of time to simply read the input
-
+* **Asymptotic Notation**: suppress constant factors and lower-order terms to focus on how an algorithm's runtime scales with input size
+  * constant factors are too system dependent
+  * lower-order terms are irrelevant for large inputs
+* **Big-O Notation:** `T(n) = O(f(n))` if-and-only-if `T(n)` is eventually bounded above by a constant multiple of `f(n)`
+  * `T(n) = O(f(n))` if-and-only-if there exists positive constants *c* and *n*<sub>0</sub> such that `T(n) <= c * O(f(n))` for all *n* greater-than-or-equal-to *n*<sub>0</sub>
 </details>
 
 ---
