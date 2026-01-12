@@ -637,6 +637,53 @@ int main() {
 
 ---
 
+### Recursive Matrix Multiplication
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* [Strassen 's Subcubic Matrix Multiplication Algorithm](https://www.youtube.com/watch?v=ORrM-aSNZUs&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=15)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+#### Standard Recursive Matrix Multiplication
+
+*Python3*
+```python
+import numpy as np
+
+def go(X, Y):
+    n = X.shape[0]
+
+    # Base case: 1x1 matrix
+    if n == 1:
+        return X * Y
+
+    # Divide: Partition A and B into n/2 x n/2 submatrices
+    k = n // 2
+
+    A, B = X[:k, :k], X[:k, k:]
+    C, D = X[k:, :k], X[k:, k:]
+
+    E, F = Y[:k, :k], Y[:k, k:]
+    G, H = Y[k:, :k], Y[k:, k:]
+
+    # Combine: Reconstruct the full matrix from quadrants
+    Z = np.zeros((n, n), dtype=X.dtype)
+    Z[:k, :k], Z[:k, k:] = go(A, E) + go(B, G), go(A, F) + go(B, H)
+    Z[k:, :k], Z[k:, k:] = go(C, E) + go(D, G), go(C, F) + go(D, H)
+
+    return Z
+```
+
+</details>
+
+
+---
+
 ### Quick Sort
 
 <details><summary>📚 Lectures</summary>
