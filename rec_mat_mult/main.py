@@ -32,9 +32,10 @@ def go(X, Y):
     return Z
 
 # Example Usage
-n = 4 # n must be a power of 2 for this simple implementation
+# n = 4 # n must be a power of 2 for this simple implementation
 # A = np.random.randint(0, 10, (n, n))
 # B = np.random.randint(0, 10, (n, n))
+
 A = np.array([
     [1, 2, 3, 4],
     [1, 2, 3, 4],
