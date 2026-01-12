@@ -1,46 +1,69 @@
 #
-# Recursive Matrix Multiplication
+# Standard Recursive Matrix Multiplication (RecMatMult)
 #
 # Input: n x n integer matrices X and Y
 # Output: Z = X * Y
 # Assumption: n is a power of 2
+# Complexity: O(n^3) - T(n) = 8T(n/2) + O(n^2)
 #
-
-N = 2
-
-X = [[1, 2],
-     [3, 4]]
-
-Y = [[5, 6],
-     [7, 8]]
-
-def sub_matrix(A):
-    return [[A[0][0]]], [[A[0][1]]], [[A[1][0]]], [[A[1][1]]]
+import numpy as np
 
 def go(X, Y):
-    N = len(X)
-    if N == 1:
-        return X[0][0] * Y[0][0]
+    n = X.shape[0]
 
-    #
-    # X = | A B |    Y = | E F |
-    #     | C D |        | G H |
-    #
-    A, B, C, D = sub_matrix(X)
-    E, F, G, H = sub_matrix(Y)
+    # Base case: 1x1 matrix
+    if n == 1:
+        return X * Y
 
-    #
-    # X * Y = | AE + BG    AF + BH |
-    #         | CE + DG    CF + DH |
-    #
-    AE, BG = go(A, E), go(B, G); AF, BH = go(A, F), go(B, H)
-    CE, DG = go(C, E), go(D, G); CF, DH = go(C, F), go(D, H)
-    return [[AE + BG, AF + BH],
-            [CE + DG, CF + DH]]
+    # Divide: Partition A and B into n/2 x n/2 submatrices
+    k = n // 2
 
-def pretty_print(A):
-    for row in A:
-        print(row)
-    print()
+    A, B = X[:k, :k], X[:k, k:]
+    C, D = X[k:, :k], X[k:, k:]
 
-pretty_print(go(X, Y))
+    E, F = Y[:k, :k], Y[:k, k:]
+    G, H = Y[k:, :k], Y[k:, k:]
+
+    # Combine: Reconstruct the full matrix from quadrants
+    Z = np.zeros((n, n), dtype=X.dtype)
+    Z[:k, :k], Z[:k, k:] = go(A, E) + go(B, G), go(A, F) + go(B, H)
+    Z[k:, :k], Z[k:, k:] = go(C, E) + go(D, G), go(C, F) + go(D, H)
+
+    return Z
+
+# Example Usage
+n = 4 # n must be a power of 2 for this simple implementation
+# A = np.random.randint(0, 10, (n, n))
+# B = np.random.randint(0, 10, (n, n))
+A = np.array([
+    [1, 2, 3, 4],
+    [1, 2, 3, 4],
+    [1, 2, 3, 4],
+    [1, 2, 3, 4],
+])
+
+B = np.array([
+    [1, 2, 3, 4],
+    [1, 2, 3, 4],
+    [1, 2, 3, 4],
+    [1, 2, 3, 4],
+])
+
+expect = A @ B
+actual = go(A, B)
+print("Expect:\n", expect)
+print("Actual:\n", actual)
+assert(np.array_equal(expect, actual))
+
+# ➜  Algorithms-Illuminated git:(main) ✗ source ./.venv/bin/activate
+# (.venv) ➜  Algorithms-Illuminated git:(main) ✗ python3 ./rec_mat_mult/main.py
+# Expect:
+#  [[10 20 30 40]
+#  [10 20 30 40]
+#  [10 20 30 40]
+#  [10 20 30 40]]
+# Actual:
+#  [[10 20 30 40]
+#  [10 20 30 40]
+#  [10 20 30 40]
+#  [10 20 30 40]]
