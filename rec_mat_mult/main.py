@@ -31,40 +31,75 @@ def go(X, Y):
 
     return Z
 
-# Example Usage
-# n = 4 # n must be a power of 2 for this simple implementation
-# A = np.random.randint(0, 10, (n, n))
-# B = np.random.randint(0, 10, (n, n))
+def pretty_print(A, label=''):
+    col_width = max(len(str(x)) for x in A.flat)
+    if len(label):
+        print(label)
+        n = A.shape[0]
+        spaces = n - 1
+        print('-' * (n * col_width + spaces))
 
-A = np.array([
-    [1, 2, 3, 4],
-    [1, 2, 3, 4],
-    [1, 2, 3, 4],
-    [1, 2, 3, 4],
-])
+    fmt = f'{{:>{col_width}d}}'
+    for row in A:
+        print(' '.join(fmt.format(x) for x in row))
+    print()
 
-B = np.array([
-    [1, 2, 3, 4],
-    [1, 2, 3, 4],
-    [1, 2, 3, 4],
-    [1, 2, 3, 4],
-])
+def main():
+    # Example Usage
+    # n = 4 # n must be a power of 2 for this simple implementation
+    # A = np.random.randint(0, 10, (n, n))
+    # B = np.random.randint(0, 10, (n, n))
 
-expect = A @ B
-actual = go(A, B)
-print("Expect:\n", expect)
-print("Actual:\n", actual)
-assert(np.array_equal(expect, actual))
+    A = np.array([
+        [1, 2, 3, 4],
+        [1, 2, 3, 4],
+        [1, 2, 3, 4],
+        [1, 2, 3, 4],
+    ])
 
-# ➜  Algorithms-Illuminated git:(main) ✗ source ./.venv/bin/activate
-# (.venv) ➜  Algorithms-Illuminated git:(main) ✗ python3 ./rec_mat_mult/main.py
-# Expect:
-#  [[10 20 30 40]
-#  [10 20 30 40]
-#  [10 20 30 40]
-#  [10 20 30 40]]
-# Actual:
-#  [[10 20 30 40]
-#  [10 20 30 40]
-#  [10 20 30 40]
-#  [10 20 30 40]]
+    B = np.array([
+        [1, 2, 3, 4],
+        [1, 2, 3, 4],
+        [1, 2, 3, 4],
+        [1, 2, 3, 4],
+    ])
+
+    expect = A @ B
+    actual = go(A, B)
+    pretty_print(A, 'A')
+    pretty_print(B, 'B')
+    pretty_print(expect, 'A * B (expect)')
+    pretty_print(actual, 'A * B (actual)')
+    assert(np.array_equal(expect, actual))
+
+if __name__ == "__main__":
+    main()
+
+# ➜  rec_mat_mult git:(main) ✗ uv run ./main.py
+# A
+# -------
+# 1 2 3 4
+# 1 2 3 4
+# 1 2 3 4
+# 1 2 3 4
+
+# B
+# -------
+# 1 2 3 4
+# 1 2 3 4
+# 1 2 3 4
+# 1 2 3 4
+
+# A * B (expect)
+# -----------
+# 10 20 30 40
+# 10 20 30 40
+# 10 20 30 40
+# 10 20 30 40
+
+# A * B (actual)
+# -----------
+# 10 20 30 40
+# 10 20 30 40
+# 10 20 30 40
+# 10 20 30 40
