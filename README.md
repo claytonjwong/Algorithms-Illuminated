@@ -679,6 +679,42 @@ def go(X, Y):
     return Z
 ```
 
+### Strassen's Matrix Multiplication
+
+*Python3*
+```python
+import numpy as np
+
+def go(X, Y):
+    n = X.shape[0]
+
+    # Base case: 1x1 matrix
+    if n == 1:
+        return X * Y
+
+    # Divide: Partition A and B into n/2 x n/2 submatrices
+    k = n // 2
+
+    A, B = X[:k, :k], X[:k, k:]
+    C, D = X[k:, :k], X[k:, k:]
+
+    E, F = Y[:k, :k], Y[:k, k:]
+    G, H = Y[k:, :k], Y[k:, k:]
+
+    # Combine: Reconstruct the full matrix from quadrants
+    Z = np.zeros((n, n), dtype=X.dtype)
+    P1 = go(A, F - H)
+    P2 = go(A + B, H)
+    P3 = go(C + D, E)
+    P4 = go(D, G - E)
+    P5 = go(A + D, E + H)
+    P6 = go(B - D, G + H)
+    P7 = go(A - C, E + F)
+    Z[:k, :k], Z[:k, k:] = (P5 + P4 - P2 + P6), (P1 + P2)
+    Z[k:, :k], Z[k:, k:] = (P3 + P4), (P1 + P5 - P3 - P7)
+    return Z
+```
+
 </details>
 
 
