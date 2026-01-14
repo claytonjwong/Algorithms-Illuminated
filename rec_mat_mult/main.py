@@ -28,7 +28,6 @@ def go(X, Y):
     Z = np.zeros((n, n), dtype=X.dtype)
     Z[:k, :k], Z[:k, k:] = go(A, E) + go(B, G), go(A, F) + go(B, H)
     Z[k:, :k], Z[k:, k:] = go(C, E) + go(D, G), go(C, F) + go(D, H)
-
     return Z
 
 def pretty_print(A, label=''):
