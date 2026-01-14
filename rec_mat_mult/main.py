@@ -45,24 +45,9 @@ def pretty_print(A, label=''):
     print()
 
 def main():
-    # Example Usage
-    # n = 4 # n must be a power of 2 for this simple implementation
-    # A = np.random.randint(0, 10, (n, n))
-    # B = np.random.randint(0, 10, (n, n))
-
-    A = np.array([
-        [1, 2, 3, 4],
-        [1, 2, 3, 4],
-        [1, 2, 3, 4],
-        [1, 2, 3, 4],
-    ])
-
-    B = np.array([
-        [1, 2, 3, 4],
-        [1, 2, 3, 4],
-        [1, 2, 3, 4],
-        [1, 2, 3, 4],
-    ])
+    n = 4 # n must be a power of 2 for this simple implementation
+    A = np.random.randint(0, 10, (n, n))
+    B = np.random.randint(0, 10, (n, n))
 
     expect = A @ B
     actual = go(A, B)
@@ -78,28 +63,28 @@ if __name__ == "__main__":
 # ➜  rec_mat_mult git:(main) ✗ uv run ./main.py
 # A
 # -------
-# 1 2 3 4
-# 1 2 3 4
-# 1 2 3 4
-# 1 2 3 4
+# 9 0 6 8
+# 4 6 9 2
+# 0 5 9 9
+# 9 1 1 3
 
 # B
 # -------
-# 1 2 3 4
-# 1 2 3 4
-# 1 2 3 4
-# 1 2 3 4
+# 2 3 4 6
+# 5 5 4 3
+# 1 6 8 0
+# 5 2 4 2
 
 # A * B (expect)
-# -----------
-# 10 20 30 40
-# 10 20 30 40
-# 10 20 30 40
-# 10 20 30 40
+# ---------------
+#  64  79 116  70
+#  57 100 120  46
+#  79  97 128  33
+#  39  44  60  63
 
 # A * B (actual)
-# -----------
-# 10 20 30 40
-# 10 20 30 40
-# 10 20 30 40
-# 10 20 30 40
+# ---------------
+#  64  79 116  70
+#  57 100 120  46
+#  79  97 128  33
+#  39  44  60  63
