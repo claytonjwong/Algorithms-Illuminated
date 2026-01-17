@@ -752,13 +752,16 @@ def go(X, Y):
 <details><summary>📚 Lectures</summary>
 <br/>
 
-* **Input:** `n >= 2` points p<sub>1</sub>=(x<sub>1</sub>,y<sub>1</sub>), p2=(x<sub>2</sub>,y<sub>2</sub>), ... , p<sub>n</sub>=(x<sub>n</sub>,y<sub>n</sub>)
-* **Output:** The pair p<sub>i</sub>,p<sub>j</sub> of distinct points with smallest Euclidean distance d(p<sub>i</sub>,p<sub>j</sub>)
+* [O(nlogn) Algorithm for Closest Pair: Part One](https://www.youtube.com/watch?v=3pUOv_ocJyA&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=16)
+* [O(nlogn) Algorithm for Closest Pair: Part Two](https://www.youtube.com/watch?v=7tiafUFrlBw&list=PLEGCF-WLh2RLHqXx6-GZr_w7LgqKDXxN_&index=17)
 
 </details>
 
 <details><summary>🎯 Solutions</summary>
 <br/>
+
+* **Input:** `n >= 2` points p<sub>1</sub>=(x<sub>1</sub>,y<sub>1</sub>), p2=(x<sub>2</sub>,y<sub>2</sub>), ... , p<sub>n</sub>=(x<sub>n</sub>,y<sub>n</sub>)
+* **Output:** The pair p<sub>i</sub>,p<sub>j</sub> of distinct points with smallest Euclidean distance d(p<sub>i</sub>,p<sub>j</sub>)
 
 #### Brute-Force
 
