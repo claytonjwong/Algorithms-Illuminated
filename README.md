@@ -649,6 +649,26 @@ int main() {
 <details><summary>🎯 Solutions</summary>
 <br/>
 
+#### Iterative Matrix Multiplication
+
+*Python3*
+```python
+N = 2
+
+X = [[1, 2],
+     [3, 4]]
+
+Y = [[5, 6],
+     [7, 8]]
+
+Z = [[0] * N for _ in range(N)]
+
+for i in range(N):
+    for j in range(N):
+        for k in range(N):
+            Z[i][j] += X[i][k] * Y[k][j]
+```
+
 #### Standard Recursive Matrix Multiplication
 
 *Python3*
