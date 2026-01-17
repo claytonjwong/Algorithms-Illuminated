@@ -649,6 +649,8 @@ int main() {
 <details><summary>🎯 Solutions</summary>
 <br/>
 
+* Assume N is a power of 2 for simplicity
+
 #### Iterative Matrix Multiplication
 
 *Python3*
