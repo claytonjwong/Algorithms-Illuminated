@@ -704,7 +704,7 @@ def go(X, Y):
     return Z
 ```
 
-### Strassen's Matrix Multiplication
+#### Strassen's Matrix Multiplication
 
 * **Sub-cubic runtime:** O(N<sup>log<sub>2</sub>(7)</sup>)
 
