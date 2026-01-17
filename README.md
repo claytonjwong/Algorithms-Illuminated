@@ -747,6 +747,30 @@ def go(X, Y):
 
 ---
 
+### Closest Pair
+
+<details><summary>📚 Lectures</summary>
+<br/>
+
+* Input: `n >= 2` points p<sub>1</sub>=(x<sub>1</sub>,y<sub>1</sub>), p2=(x<sub>2</sub>,y<sub>2</sub>), ... , p<sub>n</sub>=(x<sub>n</sub>,y<sub>n</sub>)
+* Output: The pair p<sub>i</sub>,p<sub>j</sub> of distinct points with smallest Euclidean distance d(p<sub>i</sub>,p<sub>j</sub>)
+
+</details>
+
+<details><summary>🎯 Solutions</summary>
+<br/>
+
+#### Closest Pair
+
+*Python3*
+```python
+```
+
+</details>
+
+
+---
+
 ### Quick Sort
 
 <details><summary>📚 Lectures</summary>
