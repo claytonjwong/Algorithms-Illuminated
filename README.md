@@ -653,7 +653,7 @@ int main() {
 
 #### Iterative Matrix Multiplication
 
-* Cubic runtime: O(N<sup>3</sup>)
+* **Cubic runtime:** O(N<sup>3</sup>)
 
 *Python3*
 ```python
@@ -675,7 +675,7 @@ for i in range(N):
 
 #### Standard Recursive Matrix Multiplication
 
-* Cubic runtime: O(N<sup>3</sup>)
+* **Cubic runtime:** O(N<sup>3</sup>)
 
 *Python3*
 ```python
@@ -706,7 +706,7 @@ def go(X, Y):
 
 ### Strassen's Matrix Multiplication
 
-* Sub-cubic runtime: O(N<sup>log<sub>2</sub>(7)</sup>)
+* **Sub-cubic runtime:** O(N<sup>log<sub>2</sub>(7)</sup>)
 
 *Python3*
 ```python
@@ -762,7 +762,7 @@ def go(X, Y):
 
 #### Brute-Force
 
-* Runtime: quadratic O(N<sup>2</sup>)
+* **Quadratic runtime:** O(N<sup>2</sup>)
 
 *Python3*
 ```python
