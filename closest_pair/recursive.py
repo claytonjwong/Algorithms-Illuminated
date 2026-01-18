@@ -1,5 +1,4 @@
 P = [(1, 8), (2, 5), (4, 7), (6, 3)]
-# P = [(1, 8), (2, 5), (4, 7)]
 N = len(P)
 INF = 1234567890  # arbitary choice for infinity
 
