@@ -1,4 +1,5 @@
 P = [(1, 8), (2, 5), (4, 7), (6, 3)]
+# P = [(1, 8), (2, 5), (4, 7)]
 N = len(P)
 INF = 1234567890  # arbitary choice for infinity
 
@@ -11,19 +12,22 @@ def dist(first, second):
 def split(Px, Py):
     return Px[0] # TODO: implement me
 
+def best(P):
+    best_dist = 123456789
+    best_pair = None
+    for a in P:
+        for b in P:
+            if a != b:
+                cand = dist(a, b)
+                if best_dist >= cand:
+                    best_dist = cand
+                    best_pair = (a, b)
+    return best_pair
+
 def go(Px, Py):
     # Base case
-    if len(Px) + len(Py) <= 3:
-        best_dist = 123456789
-        best_pair = None
-        for a in Px + Py:
-            for b in Px + Py:
-                if a != b:
-                    cand = dist(a, b)
-                    if best_dist >= cand:
-                        best_dist = cand
-                        best_pair = (a, b)
-        return best_pair
+    if len(Px) <= 3:
+        return best(Px)
 
     print(f'Px: {Px}')
     print(f'Py: {Py}')
@@ -53,12 +57,8 @@ def go(Px, Py):
     # # best split pair
     # best_split = split(Px, Py)
 
-    # # return best of the best
-    # a = [dist(*best_left), best_left]
-    # b = [dist(*best_right), best_right]
-    # c = [dist(*best_split), best_split]
-    # order = sorted(a, b, c, key=lambda it: it[0])
-    # return order[0][1]
+    # return best([best_left, best_right, best_split])  # return best of the best
+    return None
 
 Px = sorted(P, key=lambda it: it[0])
 Py = sorted(P, key=lambda it: it[1])
