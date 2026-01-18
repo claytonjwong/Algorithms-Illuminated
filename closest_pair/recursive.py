@@ -9,9 +9,13 @@ def dist(first, second):
          + (y1 - y2) ** 2
 
 def split(Px, Py):
-    return Px[0] # TODO: implement me
+    if len(Px) >= 2:
+        return (Px[0], Px[1])
+    else:
+        return (Py[0], Py[1])
 
 def best(P):
+    print(f'best({P})')
     best_dist = 123456789
     best_pair = None
     for a in P:
@@ -48,16 +52,20 @@ def go(Px, Py):
     print(f'Ry: {Ry}')
 
     # # best left pair
-    # best_left = go(Lx, Ly)
+    best_left = go(Lx, Ly)
 
     # # best right pair
-    # best_right = go(Rx, Ry)
+    best_right = go(Rx, Ry)
 
     # # best split pair
-    # best_split = split(Px, Py)
+    best_split = split(Px, Py)
 
-    # return best([best_left, best_right, best_split])  # return best of the best
-    return None
+    # return best of the best
+    a = [dist(*best_left), best_left]
+    b = [dist(*best_right), best_right]
+    c = [dist(*best_split), best_split]
+    order = sorted([a, b, c], key=lambda it: it[0])
+    return order[0][1]
 
 Px = sorted(P, key=lambda it: it[0])
 Py = sorted(P, key=lambda it: it[1])
