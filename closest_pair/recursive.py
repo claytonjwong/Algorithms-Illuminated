@@ -27,13 +27,44 @@
 # expected_best_pair = ((14, 9), (16, 4))
 
 # large input: 1000 points, deterministic, unique x & y
+# P = [
+#     (i, 10000 - 10*i) if i not in (500, 501)
+#     else (500, 5000) if i == 500
+#     else (501, 4999)
+#     for i in range(1000)
+# ]
+# expected_best_pair = ((500, 5000), (501, 4999))
+
+# same x-coordinate (vertical stack)
+# P = [
+#     (5, 1),
+#     (5, 4),
+#     (5, 9),
+#     (8, 20),
+#     (12, 30),
+# ]
+# expected_best_pair = ((5, 1), (5, 4))
+
+# same y-coordinate (horizontal line)
+# P = [
+#     (1, 7),
+#     (4, 7),
+#     (9, 7),
+#     (20, 2),
+#     (25, 11),
+# ]
+# expected_best_pair = ((1, 7), (4, 7))
+
+# Many points share same x (strip stress test) [TEST CASE FAILURE]
 P = [
-    (i, 10000 - 10*i) if i not in (500, 501)
-    else (500, 5000) if i == 500
-    else (501, 4999)
-    for i in range(1000)
+    (10, 1),
+    (10, 4),
+    (10, 8),
+    (10, 13),
+    (11, 7),   # tempting but not closest
+    (20, 50),
 ]
-expected_best_pair = ((500, 5000), (501, 4999))
+expected_best_pair = ((10, 8), (11, 7))
 
 N = len(P)
 INF = 1234567890  # arbitary choice for infinity
@@ -115,5 +146,6 @@ Px = sorted(P, key=lambda it: it[0])
 Py = sorted(P, key=lambda it: it[1])
 
 best_pair = go(Px, Py)
-print(f'best_pair: {best_pair}')
+print(f'best_pair: {sorted(best_pair)}')
+print(f'expected:  {sorted(expected_best_pair)}')
 assert(sorted(best_pair) == sorted(expected_best_pair))
