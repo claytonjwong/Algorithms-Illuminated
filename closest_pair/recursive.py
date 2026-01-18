@@ -15,8 +15,25 @@
 # expected_best_pair = ((5, 3), (6, 5))
 
 # stress: diagonal-ish
-P = [(1, 10), (4, 7), (8, 3), (13, 6)]
+# P = [(1, 10), (4, 7), (8, 3), (13, 6)]
 # expected_best_pair = ((1, 10), (4, 7))
+
+# larger input: 10 points
+# P = [(1, 17), (3, 4), (6, 14), (8, 9), (11, 2), (14, 7), (17, 12), (19, 5), (22, 15), (25, 1)]
+# expected_best_pair = ((6, 14), (8, 9))
+
+# larger input: 12 points more spread out
+# P = [(2, 21), (4, 6), (7, 15), (9, 2), (12, 18), (14, 9), (16, 4), (19, 13), (21, 7), (24, 16), (27, 1), (30, 11)]
+# expected_best_pair = ((14, 9), (16, 4))
+
+# large input: 1000 points, deterministic, unique x & y
+P = [
+    (i, 10000 - 10*i) if i not in (500, 501)
+    else (500, 5000) if i == 500
+    else (501, 4999)
+    for i in range(1000)
+]
+expected_best_pair = ((500, 5000), (501, 4999))
 
 N = len(P)
 INF = 1234567890  # arbitary choice for infinity
@@ -62,9 +79,6 @@ def go(Px, Py):
     if len(Px) <= 3:
         return best(Px)
 
-    print(f'Px: {Px}')
-    print(f'Py: {Py}')
-
     n = len(Px)
     k = n // 2
     Lx, Rx = Px[:k], Px[k:]
@@ -74,12 +88,6 @@ def go(Px, Py):
             Ly.append((x, y))
         else:
             Ry.append((x, y))
-
-    print(f'Lx: {Lx}')
-    print(f'Ly: {Ly}')
-
-    print(f'Rx: {Rx}')
-    print(f'Ry: {Ry}')
 
     # best left pair
     best_left = go(Lx, Ly)
@@ -108,3 +116,4 @@ Py = sorted(P, key=lambda it: it[1])
 
 best_pair = go(Px, Py)
 print(f'best_pair: {best_pair}')
+assert(sorted(best_pair) == sorted(expected_best_pair))
