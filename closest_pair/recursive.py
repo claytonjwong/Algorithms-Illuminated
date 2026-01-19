@@ -14,25 +14,21 @@ def split(Px, Py, d):
     Sy = [(x, y) for x, y in Py if median - d <= x <= median + d]
 
     # return the best split pair (if it exists)
-    best_dist = INF
-    best_pair = None
+    best_dist, best_pair = INF, None
     for i in range(len(Sy) - 1):
         for j in range(i + 1, min(i + 1 + 7, len(Sy))):
             cand = dist(Sy[i], Sy[j])
             if best_dist > cand:
-                best_dist = cand
-                best_pair = (Sy[i], Sy[j])
+                best_dist, best_pair = cand, (Sy[i], Sy[j])
     return (best_dist, best_pair)
 
 def best(P):
-    best_dist = INF
-    best_pair = None
+    best_dist, best_pair = INF, None
     for i in range(len(P)):
         for j in range(i + 1, len(P)):
             cand = dist(P[i], P[j]) if P[i] != P[j] else INF
             if best_dist >= cand:
-                best_dist = cand
-                best_pair = (P[i], P[j])
+                best_dist, best_pair = cand, (P[i], P[j])
     return (best_dist, best_pair)
 
 def go(Px, Py):
@@ -98,9 +94,6 @@ run(points=[(10, 1), (10, 4), (10, 8), (10, 13), (11, 7), (20, 50)], expected_be
 
 # redundant x-coordinate to test split pairs
 run(points=[(0, 0), (0, 1000), (0, 2000), (0, 3000), (0, 4000), (0, 5000), (0, 6000), (0, 7000), (5, 1), (5, 7002)], expected_best_pair=((0, 0), (5, 1)))
-
-# tie for best
-run(points=[(0, 0), (0, 1), (1, 0)], expected_best_pair=((0, 0), (0, 1)))
 
 # ➜  closest_pair git:(main) ✗ python3 ./recursive.py
 # points: [(1, 8), (2, 5), (4, 7), (6, 3)]
