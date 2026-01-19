@@ -95,6 +95,9 @@ run(points=[(10, 1), (10, 4), (10, 8), (10, 13), (11, 7), (20, 50)], expected_be
 # redundant x-coordinate to test split pairs
 run(points=[(0, 0), (0, 1000), (0, 2000), (0, 3000), (0, 4000), (0, 5000), (0, 6000), (0, 7000), (5, 1), (5, 7002)], expected_best_pair=((0, 0), (5, 1)))
 
+# TODO: tie for best
+# run(points=[(0, 0), (0, 1), (1, 0)], expected_best_pair=((0, 0), (0, 1)))
+
 # ➜  closest_pair git:(main) ✗ python3 ./recursive.py
 # points: [(1, 8), (2, 5), (4, 7), (6, 3)]
 # actual: [(2, 5), (4, 7)]
