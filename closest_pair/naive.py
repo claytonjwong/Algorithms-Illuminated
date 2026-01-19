@@ -8,7 +8,7 @@ def dist(i, j):
     return (x1 - x2) ** 2 \
          + (y1 - y2) ** 2
 
-best_dist = 123456789
+best_dist = INF
 best_pair = None
 
 D = [[INF] * N for _ in range(N)]
