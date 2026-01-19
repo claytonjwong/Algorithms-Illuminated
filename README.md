@@ -795,6 +795,76 @@ i, j = best_pair
 print(f'best pair: {P[i]}, {P[j]}')
 ```
 
+#### Recursive
+
+* **Super-linear runtime:** O(NlogN)
+
+```python
+INF = 1234567890  # arbitary choice for infinity
+
+def dist(a, b):
+    x1, y1 = a
+    x2, y2 = b
+    return (x1 - x2) ** 2 \
+         + (y1 - y2) ** 2
+
+def split(Px, Py, d):
+    # median x-coordinate
+    median = Px[len(Px) // 2][0]
+
+    # identify points near left/right boundary
+    Sy = [(x, y) for x, y in Py if median - d <= x <= median + d]
+
+    # return the best split pair (if it exists)
+    best_dist, best_pair = INF, None
+    for i in range(len(Sy) - 1):
+        for j in range(i + 1, min(i + 1 + 7, len(Sy))):
+            cand = dist(Sy[i], Sy[j])
+            if best_dist > cand:
+                best_dist, best_pair = cand, (Sy[i], Sy[j])
+    return (best_dist, best_pair)
+
+def best(P):
+    best_dist, best_pair = INF, None
+    for i in range(len(P)):
+        for j in range(i + 1, len(P)):
+            cand = dist(P[i], P[j]) if P[i] != P[j] else INF
+            if best_dist >= cand:
+                best_dist, best_pair = cand, (P[i], P[j])
+    return (best_dist, best_pair)
+
+def go(Px, Py):
+    if len(Px) <= 3:  # Base case
+        return best(Px)
+
+    Lx, Rx = Px[:len(Px) // 2], Px[len(Px) // 2:]
+    Ly, Ry = [], []
+    for x, y in Py:
+        if x <= Lx[-1][0]:
+            Ly.append((x, y))
+        else:
+            Ry.append((x, y))
+
+    dist_left, best_left = go(Lx, Ly)    # best left pair
+    dist_right, best_right = go(Rx, Ry)  # best right pair
+
+    d = min(dist(*best_left), dist(*best_right))  # best distance to beat with split pair
+    dist_split, best_split = split(Px, Py, d)     # best split pair
+
+    # return best of the best
+    return sorted([(dist_left, best_left), (dist_right, best_right), (dist_split, best_split)], key=lambda it: it[0])[0]
+
+def run(points, expected_best_pair):
+    Px = sorted(points, key=lambda it: it[0])
+    Py = sorted(points, key=lambda it: it[1])
+    _, best_pair = go(Px, Py)
+    print(f'points: {points}')
+    print(f'actual: {sorted(best_pair)}')
+    print(f'expect: {sorted(expected_best_pair)}')
+    print()
+    assert(sorted(best_pair) == sorted(expected_best_pair))
+```
+
 </details>
 
 
