@@ -61,7 +61,7 @@ P = [
     (10, 4),
     (10, 8),
     (10, 13),
-    (11, 7),   # tempting but not closest
+    (11, 7),
     (20, 50),
 ]
 expected_best_pair = ((10, 8), (11, 7))
@@ -69,68 +69,98 @@ expected_best_pair = ((10, 8), (11, 7))
 N = len(P)
 INF = 1234567890  # arbitary choice for infinity
 
-def dist(first, second):
-    x1, y1 = first
-    x2, y2 = second
+def dist(a, b):
+    x1, y1 = a
+    x2, y2 = b
     return (x1 - x2) ** 2 \
          + (y1 - y2) ** 2
 
 def split(Px, Py, d):
     # median x-coordinate
-    median = Px[-1][0]
+    n = len(Px)
+    k = n // 2
+    median = Px[k][0]
 
     # identify points near left/right boundary
     Sy = [(x, y) for x, y in Py if median - d <= x <= median + d]
+
+    print(f'split(Px: {Px}, Py: {Py}, d: {d}) -> median: {median}  Sy: {Sy}')
 
     # return the best split pair (if it exists)
     best_dist = INF
     best_pair = None
     for i in range(len(Sy) - 1):
-        for j in range(i + 1, min(i + 7, len(Sy))):
+        for j in range(i + 1, min(i + 1 + 7, len(Sy))):
             cand = dist(Sy[i], Sy[j])
+            print(f'split_dist: {cand}  for {Sy[i]}, {Sy[j]}')
             if best_dist > cand:
+                print(f'split_BEST: {cand}  for {Sy[i]}, {Sy[j]}')
                 best_dist = cand
                 best_pair = (Sy[i], Sy[j])
     return best_pair
 
-def best(P):
+def best(P, spaces):
+    ws = " " * spaces
     best_dist = INF
     best_pair = None
     for a in P:
         for b in P:
-            if a != b:
-                cand = dist(a, b)
-                if best_dist >= cand:
-                    best_dist = cand
-                    best_pair = (a, b)
+            cand = dist(a, b) if a != b else INF
+            if best_dist >= cand:
+                best_dist = cand
+                best_pair = (a, b)
+        print(f'{ws}base case: {P} -> {best_pair}')
     return best_pair
 
-def go(Px, Py):
+def go(Px, Py, spaces=0):
+    ws = " " * spaces
+
+    print(f'{ws}Px: {Px}')
+    print(f'{ws}Py: {Py}')
+
     # Base case
     if len(Px) <= 3:
-        return best(Px)
+        return best(Px, spaces + 2)
 
     n = len(Px)
     k = n // 2
     Lx, Rx = Px[:k], Px[k:]
     Ly, Ry = [], []
+    # tie = Ly
     for x, y in Py:
-        if x < Rx[0][0]:
+        if (x, y) in Lx:
             Ly.append((x, y))
         else:
             Ry.append((x, y))
+        # if x < Lx[-1][0]: Ly.append((x, y))  # if x-coord is less-than the left partition's maximum x-coord
+        # elif x > Rx[0][0]: Ry.append((x, y)) # if x-coord is greater-than right partitions minimum x-coord
+        # else:
+        #     tie.append((x, y))
+        #     tie = Ry if tie == Ly else Ly  # every other tie is placed into Ly and Rx
+
+    print()
+    print(f'{ws}Lx: {Lx}')
+    print(f'{ws}Ly: {Ly}')
+    print()
+    print(f'{ws}Rx: {Rx}')
+    print(f'{ws}Ry: {Ry}')
+    print()
 
     # best left pair
-    best_left = go(Lx, Ly)
+    best_left = go(Lx, Ly, spaces + 2)
 
     # best right pair
-    best_right = go(Rx, Ry)
+    best_right = go(Rx, Ry, spaces + 2)
 
     # best distance to beat with a split pair
     d = min(dist(*best_left), dist(*best_right))
 
     # best split pair
     best_split = split(Px, Py, d)
+
+    print(f'{ws}best_left: {best_left}')
+    print(f'{ws}best_right: {best_right}')
+    print(f'{ws}best_split: {best_split}')
 
     # return best of the best
     order = [
@@ -140,6 +170,7 @@ def go(Px, Py):
     if best_split:
         order.append([dist(*best_split), best_split])
     order.sort(key=lambda it: it[0])
+    print(f'{ws}best_best: {order[0][1]}')
     return order[0][1]
 
 Px = sorted(P, key=lambda it: it[0])
