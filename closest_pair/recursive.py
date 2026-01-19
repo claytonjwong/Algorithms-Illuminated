@@ -8,9 +8,7 @@ def dist(a, b):
 
 def split(Px, Py, d):
     # median x-coordinate
-    n = len(Px)
-    k = n // 2
-    median = Px[k][0]
+    median = Px[len(Px) // 2][0]
 
     # identify points near left/right boundary
     Sy = [(x, y) for x, y in Py if median - d <= x <= median + d]
@@ -24,26 +22,24 @@ def split(Px, Py, d):
             if best_dist > cand:
                 best_dist = cand
                 best_pair = (Sy[i], Sy[j])
-    return best_pair
+    return (best_dist, best_pair)
 
 def best(P):
     best_dist = INF
     best_pair = None
-    for a in P:
-        for b in P:
-            cand = dist(a, b) if a != b else INF
+    for i in range(len(P)):
+        for j in range(i + 1, len(P)):
+            cand = dist(P[i], P[j]) if P[i] != P[j] else INF
             if best_dist >= cand:
                 best_dist = cand
-                best_pair = (a, b)
-    return best_pair
+                best_pair = (P[i], P[j])
+    return (best_dist, best_pair)
 
 def go(Px, Py):
     if len(Px) <= 3:  # Base case
         return best(Px)
 
-    n = len(Px)
-    k = n // 2
-    Lx, Rx = Px[:k], Px[k:]
+    Lx, Rx = Px[:len(Px) // 2], Px[len(Px) // 2:]
     Ly, Ry = [], []
     for x, y in Py:
         if x <= Lx[-1][0]:
@@ -51,24 +47,19 @@ def go(Px, Py):
         else:
             Ry.append((x, y))
 
-    best_left = go(Lx, Ly)   # best left pair
-    best_right = go(Rx, Ry)  # best right pair
+    dist_left, best_left = go(Lx, Ly)    # best left pair
+    dist_right, best_right = go(Rx, Ry)  # best right pair
 
     d = min(dist(*best_left), dist(*best_right))  # best distance to beat with split pair
-    best_split = split(Px, Py, d)                 # best split pair
+    dist_split, best_split = split(Px, Py, d)     # best split pair
 
     # return best of the best
-    order = sorted([
-        [dist(*best_left), best_left],
-        [dist(*best_right), best_right],
-        [dist(*best_split) if best_split else INF, best_split]], key=lambda it: it[0])
-    return order[0][1]
+    return sorted([(dist_left, best_left), (dist_right, best_right), (dist_split, best_split)], key=lambda it: it[0])[0]
 
 def run(points, expected_best_pair):
     Px = sorted(points, key=lambda it: it[0])
     Py = sorted(points, key=lambda it: it[1])
-    best_pair = go(Px, Py)
-
+    _, best_pair = go(Px, Py)
     print(f'points: {points}')
     print(f'actual: {sorted(best_pair)}')
     print(f'expect: {sorted(expected_best_pair)}')
@@ -104,3 +95,54 @@ run(points=[(1, 7), (4, 7), (9, 7), (20, 2), (25, 11)], expected_best_pair=((1, 
 
 # redundant x-coordinate to test split pairs
 run(points=[(10, 1), (10, 4), (10, 8), (10, 13), (11, 7), (20, 50)], expected_best_pair=((10, 8), (11, 7)))
+
+# redundant x-coordinate to test split pairs
+run(points=[(0, 0), (0, 1000), (0, 2000), (0, 3000), (0, 4000), (0, 5000), (0, 6000), (0, 7000), (5, 1), (5, 7002)], expected_best_pair=((0, 0), (5, 1)))
+
+# tie for best
+run(points=[(0, 0), (0, 1), (1, 0)], expected_best_pair=((0, 0), (0, 1)))
+
+# ➜  closest_pair git:(main) ✗ python3 ./recursive.py
+# points: [(1, 8), (2, 5), (4, 7), (6, 3)]
+# actual: [(2, 5), (4, 7)]
+# expect: [(2, 5), (4, 7)]
+
+# points: [(0, 0), (3, 4), (7, 1), (10, 6)]
+# actual: [(0, 0), (3, 4)]
+# expect: [(0, 0), (3, 4)]
+
+# points: [(1, 1), (4, 10), (7, 4), (9, 8)]
+# actual: [(7, 4), (9, 8)]
+# expect: [(7, 4), (9, 8)]
+
+# points: [(2, 9), (5, 3), (6, 5), (11, 1)]
+# actual: [(5, 3), (6, 5)]
+# expect: [(5, 3), (6, 5)]
+
+# points: [(1, 10), (4, 7), (8, 3), (13, 6)]
+# actual: [(1, 10), (4, 7)]
+# expect: [(1, 10), (4, 7)]
+
+# points: [(1, 17), (3, 4), (6, 14), (8, 9), (11, 2), (14, 7), (17, 12), (19, 5), (22, 15), (25, 1)]
+# actual: [(6, 14), (8, 9)]
+# expect: [(6, 14), (8, 9)]
+
+# points: [(2, 21), (4, 6), (7, 15), (9, 2), (12, 18), (14, 9), (16, 4), (19, 13), (21, 7), (24, 16), (27, 1), (30, 11)]
+# actual: [(14, 9), (16, 4)]
+# expect: [(14, 9), (16, 4)]
+
+# points: [(5, 1), (5, 4), (5, 9), (8, 20), (12, 30)]
+# actual: [(5, 1), (5, 4)]
+# expect: [(5, 1), (5, 4)]
+
+# points: [(1, 7), (4, 7), (9, 7), (20, 2), (25, 11)]
+# actual: [(1, 7), (4, 7)]
+# expect: [(1, 7), (4, 7)]
+
+# points: [(10, 1), (10, 4), (10, 8), (10, 13), (11, 7), (20, 50)]
+# actual: [(10, 8), (11, 7)]
+# expect: [(10, 8), (11, 7)]
+
+# points: [(0, 0), (0, 1000), (0, 2000), (0, 3000), (0, 4000), (0, 5000), (0, 6000), (0, 7000), (5, 1), (5, 7002)]
+# actual: [(0, 0), (5, 1)]
+# expect: [(0, 0), (5, 1)]
