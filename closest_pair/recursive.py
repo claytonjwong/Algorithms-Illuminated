@@ -49,13 +49,10 @@ def go(Px, Py):
         else:
             Ry.append((x, y))
 
-    dist_left, best_left = go(Lx, Ly)    # best left pair
-    dist_right, best_right = go(Rx, Ry)  # best right pair
+    dist_left, best_left = go(Lx, Ly)
+    dist_right, best_right = go(Rx, Ry)
+    dist_split, best_split = split(Px, Py, min(dist_left, dist_right))
 
-    d = min(dist_left, dist_right)             # best distance to beat with split pair
-    dist_split, best_split = split(Px, Py, d)  # best split pair
-
-    # return best of the best
     cands = sorted([(dist_left, best_left), (dist_right, best_right), (dist_split, best_split)], key=lambda it: it[0])
     best_dist, best_pairs = cands[0][0], set()
     for dist, pairs in cands:
