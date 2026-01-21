@@ -57,8 +57,7 @@ def go(Px, Py):
 
     # return best of the best
     cands = sorted([(dist_left, best_left), (dist_right, best_right), (dist_split, best_split)], key=lambda it: it[0])
-    best_dist = cands[0][0]
-    best_pairs = set()
+    best_dist, best_pairs = cands[0][0], set()
     for dist, pairs in cands:
         if dist == best_dist:
             for a, b in pairs:
