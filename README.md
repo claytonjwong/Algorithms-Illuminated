@@ -802,7 +802,7 @@ print(f'best pair: {P[i]}, {P[j]}')
 ```python
 INF = 1234567890  # arbitary choice for infinity
 
-def dist(a, b):
+def distance(a, b):
     x1, y1 = a
     x2, y2 = b
     return (x1 - x2) ** 2 \
@@ -816,22 +816,28 @@ def split(Px, Py, d):
     Sy = [(x, y) for x, y in Py if median - d <= x <= median + d]
 
     # return the best split pair (if it exists)
-    best_dist, best_pair = INF, None
+    best_dist, best_pairs = INF, set()
     for i in range(len(Sy) - 1):
         for j in range(i + 1, min(i + 1 + 7, len(Sy))):
-            cand = dist(Sy[i], Sy[j])
+            cand = distance(Sy[i], Sy[j])
             if best_dist > cand:
-                best_dist, best_pair = cand, (Sy[i], Sy[j])
-    return (best_dist, best_pair)
+                best_dist = cand
+                best_pairs = set()
+            if best_dist == cand:
+                best_pairs.add((Sy[i], Sy[j]))
+    return best_dist, best_pairs
 
 def best(P):
-    best_dist, best_pair = INF, None
+    best_dist, best_pairs = INF, set()
     for i in range(len(P)):
         for j in range(i + 1, len(P)):
-            cand = dist(P[i], P[j]) if P[i] != P[j] else INF
-            if best_dist >= cand:
-                best_dist, best_pair = cand, (P[i], P[j])
-    return (best_dist, best_pair)
+            cand = distance(P[i], P[j]) if P[i] != P[j] else INF
+            if best_dist > cand:
+                best_dist = cand
+                best_pairs = set()
+            if best_dist == cand:
+                best_pairs.add((P[i], P[j]))
+    return best_dist, best_pairs
 
 def go(Px, Py):
     if len(Px) <= 3:  # Base case
@@ -845,14 +851,17 @@ def go(Px, Py):
         else:
             Ry.append((x, y))
 
-    dist_left, best_left = go(Lx, Ly)    # best left pair
-    dist_right, best_right = go(Rx, Ry)  # best right pair
+    dist_left, best_left = go(Lx, Ly)
+    dist_right, best_right = go(Rx, Ry)
+    dist_split, best_split = split(Px, Py, min(dist_left, dist_right))
 
-    d = min(dist(*best_left), dist(*best_right))  # best distance to beat with split pair
-    dist_split, best_split = split(Px, Py, d)     # best split pair
-
-    # return best of the best
-    return sorted([(dist_left, best_left), (dist_right, best_right), (dist_split, best_split)], key=lambda it: it[0])[0]
+    cands = sorted([(dist_left, best_left), (dist_right, best_right), (dist_split, best_split)], key=lambda it: it[0])
+    best_dist, best_pairs = cands[0][0], set()
+    for dist, pairs in cands:
+        if dist == best_dist:
+            for a, b in pairs:
+                best_pairs.add((a, b) if a < b else (b, a))
+    return best_dist, best_pairs
 
 def run(points, expected_best_pair):
     Px = sorted(points, key=lambda it: it[0])
