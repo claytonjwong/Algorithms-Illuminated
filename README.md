@@ -742,6 +742,147 @@ def go(X, Y):
     return Z
 ```
 
+#### Strassen's Matrix Multiplication (Variants)
+
+* **Sub-cubic runtime:** O(N<sup>log<sub>2</sub>(7)</sup>)
+
+*Python3*
+```
+#
+# Strassen-family Recursive Matrix Multiplication (2x2 block form)
+#
+# Methods:
+#   - "strassen"  : classical Strassen scheme (7 recursive multiplies)
+#   - "winograd"  : Winograd rearrangement of Strassen (7 multiplies, fewer additions)
+#   - "basis2017" : alternative-basis 7-multiply scheme (basis change + recombination)
+#
+# All methods:
+#   - Recursively split X and Y into 2x2 blocks
+#   - Perform 7 recursive multiplications
+#   - Recombine into result blocks
+#
+# Assumption: n is a power of 2
+#
+def go(X: np.ndarray, Y: np.ndarray, method: str = "strassen") -> np.ndarray:
+    n = X.shape[0]
+
+    # Base case: 1x1 matrix multiply
+    if n == 1:
+        return X * Y
+
+    k = n // 2
+
+    # Partition X into 2x2 block matrix
+    # X = [[A11 A12]
+    #      [A21 A22]]
+    A11, A12 = X[:k, :k], X[:k, k:]
+    A21, A22 = X[k:, :k], X[k:, k:]
+
+    # Partition Y into 2x2 block matrix
+    # Y = [[B11 B12]
+    #      [B21 B22]]
+    B11, B12 = Y[:k, :k], Y[:k, k:]
+    B21, B22 = Y[k:, :k], Y[k:, k:]
+
+    # Allocate result matrix
+    Z = np.zeros((n, n), dtype=X.dtype)
+
+    # ============================================================
+    # Classical Strassen scheme
+    # ============================================================
+    if method == "strassen":
+
+        # 7 recursive multiplications
+        M1 = go(A11 + A22, B11 + B22, method)
+        M2 = go(A21 + A22, B11, method)
+        M3 = go(A11, B12 - B22, method)
+        M4 = go(A22, B21 - B11, method)
+        M5 = go(A11 + A12, B22, method)
+        M6 = go(A21 - A11, B11 + B12, method)
+        M7 = go(A12 - A22, B21 + B22, method)
+
+        # Recombine into C blocks
+        C11 = M1 + M4 - M5 + M7
+        C12 = M3 + M5
+        C21 = M2 + M4
+        C22 = M1 - M2 + M3 + M6
+
+        Z[:k, :k] = C11
+        Z[:k, k:] = C12
+        Z[k:, :k] = C21
+        Z[k:, k:] = C22
+        return Z
+
+    # ============================================================
+    # Winograd rearrangement of Strassen
+    # Same 7 multiplies, different additive structure
+    # ============================================================
+    if method == "winograd":
+
+        # Core recursive products
+        t = go(A11, B11, method)
+        u = go(A21 - A11, B12 - B22, method)
+        v = go(A21 + A22, B12 - B11, method)
+
+        # w reuses t to reduce total additions
+        w = t + go(A21 + A22 - A11, B11 + B22 - B12, method)
+
+        # Recombine result blocks
+        C11 = t + go(A12, B21, method)
+        C12 = w + v + go(A11 + A12 - A21 - A22, B22, method)
+        C21 = w + u + go(A22, B21 + B12 - B11 - B22, method)
+        C22 = w + u + v
+
+        Z[:k, :k] = C11
+        Z[:k, k:] = C12
+        Z[k:, :k] = C21
+        Z[k:, k:] = C22
+        return Z
+
+    # ============================================================
+    # 2017 alternative-basis 7-multiply scheme
+    # Performs a basis change on A22 and B22 blocks
+    # ============================================================
+    if method == "basis2017":
+
+        # Basis transformation of lower-right blocks
+        A22p = A12 - A21 + A22
+        B22p = B12 - B21 + B22
+
+        # Linear combinations used by recursive multiplies
+        t1 = A21 + A22p
+        t2 = A22p - A12
+        t3 = A22p - A11
+        t4 = B22p - B11
+        t5 = B21 + B22p
+        t6 = B22p - B12
+
+        # 7 recursive multiplications
+        M1 = go(A11, B11, method)
+        M2 = go(A12, B21, method)
+        M3 = go(A21, t4, method)
+        M4 = go(A22p, B22p, method)
+        M5 = go(t1, t5, method)
+        M6 = go(t2, t6, method)
+        M7 = go(t3, B12, method)
+
+        # Initial recombination
+        C11 = M1 + M2
+        C12 = M5 - M7
+        C21 = M3 + M6
+        C22 = M5 + M6 - M2 - M4
+
+        # Final correction step required by basis change
+        C12 = C12 - C22
+        C21 = C22 - C21
+
+        Z[:k, :k] = C11
+        Z[:k, k:] = C12
+        Z[k:, :k] = C21
+        Z[k:, k:] = C22
+        return Z
+```
+
 </details>
 
 
