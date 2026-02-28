@@ -747,7 +747,7 @@ def go(X, Y):
 * **Sub-cubic runtime:** O(N<sup>log<sub>2</sub>(7)</sup>)
 
 *Python3*
-```
+```python
 #
 # Strassen-family Recursive Matrix Multiplication (2x2 block form)
 #
